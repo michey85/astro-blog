@@ -66,5 +66,10 @@
     "*.{js,jsx,ts,tsx,md,mdx,json,astro}": [
       "prettier --write --plugin=prettier-plugin-astro"
     ]
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "@swc/core@1.16.22": true,
+    "fsevents@2.3.3": true
   }
 }
