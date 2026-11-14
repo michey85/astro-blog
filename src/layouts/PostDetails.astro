@@ -81,10 +81,14 @@ const layoutProps = {
         <Image
           src={featuredImage}
           alt={featuredImageAlt ?? ""}
-          widths={[640, 960, 1536]}
-          sizes="(min-width: 768px) 768px, 100vw"
+          widths={[
+            ...[640, 960, 1536].filter(w => w < featuredImage.width),
+            featuredImage.width,
+          ]}
+          sizes={`(min-width: 768px) ${Math.min(featuredImage.width, 768)}px, 100vw`}
           loading="eager"
-          class="mt-6 w-full rounded-md"
+          class="mx-auto mt-6 h-auto max-w-full rounded-md"
+          style={`width: ${Math.min(featuredImage.width, 768)}px`}
         />
       )
     }
