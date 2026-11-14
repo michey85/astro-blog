@@ -1,0 +1,121 @@
+---
+// Site counters configured in Pages CMS ("Настройки сайта → Метрика и счётчики").
+//
+// position="head" — Yandex Metrika / Google Analytics loaders + custom <head> code.
+// position="body" — Metrika <noscript> pixel + custom code for the end of <body>.
+//
+// The site uses Astro's ClientRouter (SPA-style navigation), so:
+//  - head scripts are identical on every page → kept by the router and run once;
+//  - Metrika gets an explicit 'hit' on every client-side navigation;
+//  - GA4 counts navigations itself via "Enhanced measurement → Page changes
+//    based on browser history events" (on by default in GA4).
+//  - custom body code is wrapped in transition:persist so it isn't re-run
+//    (and counters aren't re-initialised) on every navigation.
+import { ANALYTICS } from "@config";
+
+export interface Props {
+  position: "head" | "body";
+}
+
+const { position } = Astro.props;
+const enabled = import.meta.env.PROD;
+
+const {
+  yandexMetrikaId,
+  yandexWebvisor,
+  googleAnalyticsId,
+  headCode,
+  bodyCode,
+} = ANALYTICS;
+const ymId = yandexMetrikaId ? Number(yandexMetrikaId) : undefined;
+---
+
+{enabled && position === "head" && (
+  <>
+    {ymId && <script is:inline define:vars={{ ymId, webvisor: yandexWebvisor }}>
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) return;
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js",
+        "ym"
+      );
+
+      window.ym(ymId, "init", {
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true,
+        webvisor: webvisor,
+      });
+
+      // Count client-side (ClientRouter) navigations as page views.
+      var ymPrevUrl = location.href;
+      document.addEventListener("astro:page-load", function () {
+        if (location.href === ymPrevUrl) return; // initial load: counted by init
+        window.ym(ymId, "hit", location.href, {
+          title: document.title,
+          referer: ymPrevUrl,
+        });
+        ymPrevUrl = location.href;
+      });
+    </script>}
+
+    {googleAnalyticsId && (
+      <>
+        <script
+          is:inline
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+        />
+        <script is:inline define:vars={{ gaId: googleAnalyticsId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            window.dataLayer.push(arguments);
+          }
+          window.gtag = gtag;
+          gtag("js", new Date());
+          gtag("config", gaId);
+        </script>
+      </>
+    )}
+
+    {headCode && <Fragment set:html={headCode} />}
+  </>
+)}
+
+{enabled && position === "body" && (
+  <>
+    {ymId && (
+      <noscript>
+        <div>
+          <img
+            src={`https://mc.yandex.ru/watch/${ymId}`}
+            style="position:absolute; left:-9999px;"
+            alt=""
+          />
+        </div>
+      </noscript>
+    )}
+
+    {bodyCode && (
+      <div transition:persist="site-body-code" style="display: contents">
+        <Fragment set:html={bodyCode} />
+      </div>
+    )}
+  </>
+)}

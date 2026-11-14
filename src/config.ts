@@ -10,7 +10,40 @@ const socialNames = Object.keys(socialIcons) as [
   ...(keyof typeof socialIcons)[],
 ];
 
+// Pages CMS saves cleared fields as "" (or null) — treat both as "not set".
+const optionalText = <T extends z.ZodType>(schema: T) =>
+  z.preprocess(
+    v =>
+      (typeof v === "string" && v.trim() === "") || v === null ? undefined : v,
+    schema.optional()
+  );
+
+const analyticsSchema = z
+  .object({
+    yandexMetrikaId: optionalText(
+      z
+        .string()
+        .trim()
+        .regex(/^\d+$/, "Yandex Metrika ID must contain digits only")
+    ),
+    yandexWebvisor: z
+      .boolean()
+      .nullish()
+      .transform(v => v ?? false),
+    googleAnalyticsId: optionalText(
+      z
+        .string()
+        .trim()
+        .regex(/^G-[A-Z0-9]+$/, "Google Analytics ID must look like G-XXXXXXX")
+    ),
+    headCode: optionalText(z.string()),
+    bodyCode: optionalText(z.string()),
+  })
+  .nullish()
+  .transform(v => v ?? { yandexWebvisor: false });
+
 const settingsSchema = z.object({
+  analytics: analyticsSchema,
   title: z.string().trim().min(1, "Site settings: title must not be empty"),
   socials: z
     .array(
@@ -59,6 +92,10 @@ export const LOGO_IMAGE = {
   width: 216,
   height: 46,
 };
+
+// Counters / custom snippets from "Настройки сайта → Метрика и счётчики".
+// Rendered only in production builds so local dev doesn't pollute stats.
+export const ANALYTICS = settings.analytics;
 
 export const SOCIALS: SocialObjects = settings.socials.map(social => ({
   name: social.name,
