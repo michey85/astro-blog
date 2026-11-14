@@ -1,7 +1,10 @@
 ---
-title: Mingalaba
+title: Открытый йога журнал
 ---
+Это Журнала Преподавателей Открытой Йоги. Здесь мы стараемся каждый день выкладывать Новости и Статьи. 
 
-AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro blog theme. This theme follows best practices and provides accessibility out of the box. Light and dark mode are supported by default. Moreover, additional color schemes can also be configured.
+Мы готовим преподавателей йоги на русском и английском , чтобы истинная йога не исчезла во всем мире. Приходите учиться к нам на преподавателя йоги вот ++[Курсы](https://openyogaclass.com/mod/page/view.php?id=9369)++.
 
-Read the blog posts or check [README](https://github.com/satnaing/astro-paper#readme) for more info.
+Здесь вы найдете друзей и единомышленников!
+
+Еще есть Бесплатный Он-лайн Интернет Йога Курсы Международного Открытого Йога Университета. ++[Здесь…](https://openyogaclass.com/)++
