@@ -1,0 +1,14 @@
+---
+// Optional rich-text block on the home page (home-middle.md, home-bottom.md).
+// A <section>, so it picks up the page column (width + side padding) from
+// base.css; `prose` styles everything the CMS rich-text editor can produce.
+export interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<section class:list={["prose max-w-3xl prose-img:border-0", className]}>
+  <slot />
+</section>

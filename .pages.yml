@@ -52,6 +52,18 @@ content:
     fields:
       - { name: title, label: Heading, type: string, required: true }
       - { name: body, label: Intro text, type: rich-text, options: { input: public/assets, output: /assets } }
+  - name: home-middle
+    label: "Home page: text after featured posts"
+    type: file
+    path: src/data/home-middle.md
+    fields:
+      - { name: body, label: Text (leave empty to hide), type: rich-text, options: { input: public/assets, output: /assets } }
+  - name: home-bottom
+    label: "Home page: text after all posts"
+    type: file
+    path: src/data/home-bottom.md
+    fields:
+      - { name: body, label: Text (leave empty to hide), type: rich-text, options: { input: public/assets, output: /assets } }
   - name: settings
     label: Site settings
     type: file
