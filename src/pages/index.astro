@@ -9,8 +9,16 @@ import Card from "@components/Card";
 import getThumbnail from "@utils/getThumbnail";
 import Socials from "@components/Socials.astro";
 import getSortedPosts from "@utils/getSortedPosts";
-import { SOCIALS } from "@config";
-import { Content as HomeIntro, frontmatter as home } from "../data/home.md";
+import { z } from "astro/zod";
+import { SITE, SOCIALS } from "@config";
+import { Content as HomeIntro, frontmatter } from "../data/home.md";
+
+// home.md is edited via Pages CMS ("Home page"); fall back to the site title
+// if the heading is missing or blank.
+const home = z
+  .object({ title: z.string().trim().min(1).optional().catch(undefined) })
+  .parse(frontmatter ?? {});
+const heroTitle = home.title ?? SITE.title;
 
 const posts = await getCollection("blog");
 
@@ -34,7 +42,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
   <Header />
   <main id="main-content">
     <section id="hero">
-      <h1>{home.title}</h1>
+      <h1>{heroTitle}</h1>
       <a
         target="_blank"
         href="/rss.xml"

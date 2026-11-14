@@ -51,14 +51,14 @@ content:
     path: src/data/home.md
     fields:
       - { name: title, label: Heading, type: string, required: true }
-      - { name: body, label: Intro text, type: rich-text }
+      - { name: body, label: Intro text, type: rich-text, options: { input: public/assets, output: /assets } }
   - name: settings
     label: Site settings
     type: file
     path: src/data/settings.json
     format: json
     fields:
-      - { name: title, label: Site title (header, browser tab, RSS), type: string, required: true }
+      - { name: title, label: "Site title (header, browser tab, RSS)", type: string, required: true }
       - name: socials
         label: Social links (shown in this order)
         type: object
@@ -71,3 +71,4 @@ content:
             options:
               values: [Github, Facebook, Instagram, LinkedIn, Mail, Twitter, Twitch, YouTube, WhatsApp, Snapchat, Pinterest, TikTok, CodePen, Discord, GitLab, Reddit, Skype, Steam, Telegram, Mastodon]
           - { name: href, label: "URL (use mailto:you@example.com for Mail)", type: string, required: true }
+          - { name: active, label: Show on site, type: boolean, default: true }
