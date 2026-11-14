@@ -30,7 +30,7 @@ export default function Card({
           <img
             src={thumbnail.src}
             srcSet={thumbnail.srcset}
-            alt={thumbnail.alt}
+            alt=""
             width={96}
             height={96}
             loading="lazy"
