@@ -9,7 +9,16 @@ import Card from "@components/Card";
 import getThumbnail from "@utils/getThumbnail";
 import Socials from "@components/Socials.astro";
 import getSortedPosts from "@utils/getSortedPosts";
-import { SOCIALS } from "@config";
+import { z } from "astro/zod";
+import { SITE, SOCIALS } from "@config";
+import { Content as HomeIntro, frontmatter } from "../data/home.md";
+
+// home.md is edited via Pages CMS ("Home page"); fall back to the site title
+// if the heading is missing or blank.
+const home = z
+  .object({ title: z.string().trim().min(1).optional().catch(undefined) })
+  .parse(frontmatter ?? {});
+const heroTitle = home.title ?? SITE.title;
 
 const posts = await getCollection("blog");
 
@@ -33,7 +42,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
   <Header />
   <main id="main-content">
     <section id="hero">
-      <h1>Mingalaba</h1>
+      <h1>{heroTitle}</h1>
       <a
         target="_blank"
         href="/rss.xml"
@@ -51,21 +60,9 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         <span class="sr-only">RSS-лента</span>
       </a>
 
-      <p>
-        AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro
-        blog theme. This theme follows best practices and provides accessibility
-        out of the box. Light and dark mode are supported by default. Moreover,
-        additional color schemes can also be configured.
-      </p>
-      <p>
-        Read the blog posts or check
-        <LinkButton
-          className="underline decoration-dashed underline-offset-4 hover:text-skin-accent"
-          href="https://github.com/satnaing/astro-paper#readme"
-        >
-          README
-        </LinkButton> for more info.
-      </p>
+      <div class="intro">
+        <HomeIntro />
+      </div>
       {
         // only display if at least one social link is enabled
         socialCount > 0 && (
@@ -150,8 +147,11 @@ const socialCount = SOCIALS.filter(social => social.active).length;
   #hero .rss-icon {
     @apply mb-2 h-6 w-6 scale-110 fill-skin-accent sm:mb-3 sm:scale-125;
   }
-  #hero p {
+  #hero .intro :global(p) {
     @apply my-2;
+  }
+  #hero .intro :global(a) {
+    @apply underline decoration-dashed underline-offset-4 hover:text-skin-accent;
   }
   .social-wrapper {
     @apply mt-4 flex flex-col sm:flex-row sm:items-center;

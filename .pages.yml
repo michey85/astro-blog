@@ -45,3 +45,30 @@ content:
       - { name: menuOrder, label: Menu order (lower comes first), type: number, default: 100 }
       - { name: draft, label: Draft, type: boolean }
       - { name: body, label: Body, type: rich-text, options: { input: public/assets, output: /assets } }
+  - name: home
+    label: Home page
+    type: file
+    path: src/data/home.md
+    fields:
+      - { name: title, label: Heading, type: string, required: true }
+      - { name: body, label: Intro text, type: rich-text, options: { input: public/assets, output: /assets } }
+  - name: settings
+    label: Site settings
+    type: file
+    path: src/data/settings.json
+    format: json
+    fields:
+      - { name: title, label: "Site title (header, browser tab, RSS)", type: string, required: true }
+      - name: socials
+        label: Social links (shown in this order)
+        type: object
+        list: true
+        fields:
+          - name: name
+            label: Network
+            type: select
+            required: true
+            options:
+              values: [Github, Facebook, Instagram, LinkedIn, Mail, Twitter, Twitch, YouTube, WhatsApp, Snapchat, Pinterest, TikTok, CodePen, Discord, GitLab, Reddit, Skype, Steam, Telegram, Mastodon]
+          - { name: href, label: "URL (use mailto:you@example.com for Mail)", type: string, required: true }
+          - { name: active, label: Show on site, type: boolean, default: true }
