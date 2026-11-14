@@ -52,6 +52,18 @@ content:
     fields:
       - { name: title, label: Заголовок, type: string, required: true }
       - { name: body, label: Вступительный текст, type: rich-text, options: { input: public/assets, output: /assets } }
+  - name: home-middle
+    label: "Главная: текст после избранных записей"
+    type: file
+    path: src/data/home-middle.md
+    fields:
+      - { name: body, label: "Текст (оставьте пустым, чтобы скрыть)", type: rich-text, options: { input: public/assets, output: /assets } }
+  - name: home-bottom
+    label: "Главная: текст после всех записей"
+    type: file
+    path: src/data/home-bottom.md
+    fields:
+      - { name: body, label: "Текст (оставьте пустым, чтобы скрыть)", type: rich-text, options: { input: public/assets, output: /assets } }
   - name: settings
     label: Настройки сайта
     type: file
