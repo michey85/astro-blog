@@ -6,6 +6,7 @@ import Footer from "@components/Footer.astro";
 import LinkButton from "@components/LinkButton.astro";
 import Hr from "@components/Hr.astro";
 import Card from "@components/Card";
+import getThumbnail from "@utils/getThumbnail";
 import Socials from "@components/Socials.astro";
 import getSortedPosts from "@utils/getSortedPosts";
 import { SOCIALS } from "@config";
@@ -15,6 +16,15 @@ const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+
+// Only the cards shown below get thumbnails: all featured + first 4 recent
+const thumbnails = new Map(
+  await Promise.all(
+    [...featuredPosts, ...recentPosts.slice(0, 4)].map(
+      async p => [p.slug, await getThumbnail(p.data)] as const
+    )
+  )
+);
 
 const socialCount = SOCIALS.filter(social => social.active).length;
 ---
@@ -79,6 +89,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
                 <Card
                   href={`/posts/${slug}/`}
                   frontmatter={data}
+                  thumbnail={thumbnails.get(slug)}
                   secHeading={false}
                 />
               ))}
@@ -100,6 +111,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
                   <Card
                     href={`/posts/${slug}/`}
                     frontmatter={data}
+                    thumbnail={thumbnails.get(slug)}
                     secHeading={false}
                   />
                 )

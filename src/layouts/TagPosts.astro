@@ -5,6 +5,7 @@ import Main from "@layouts/Main.astro";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Card from "@components/Card";
+import getThumbnail from "@utils/getThumbnail";
 import Pagination from "@components/Pagination.astro";
 import { SITE } from "@config";
 
@@ -17,6 +18,12 @@ export interface Props {
 }
 
 const { currentPage, totalPages, paginatedPosts, tag, tagName } = Astro.props;
+
+const thumbnails = new Map(
+  await Promise.all(
+    paginatedPosts.map(async p => [p.slug, await getThumbnail(p.data)] as const)
+  )
+);
 ---
 
 <Layout title={`Tag: ${tagName} | ${SITE.title}`}>
@@ -30,7 +37,11 @@ const { currentPage, totalPages, paginatedPosts, tag, tagName } = Astro.props;
     <ul>
       {
         paginatedPosts.map(({ data, slug }) => (
-          <Card href={`/posts/${slug}/`} frontmatter={data} />
+          <Card
+            href={`/posts/${slug}/`}
+            frontmatter={data}
+            thumbnail={thumbnails.get(slug)}
+          />
         ))
       }
     </ul>
