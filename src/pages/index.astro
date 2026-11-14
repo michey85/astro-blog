@@ -12,6 +12,14 @@ import getSortedPosts from "@utils/getSortedPosts";
 import { z } from "astro/zod";
 import { SITE, SOCIALS } from "@config";
 import { Content as HomeIntro, frontmatter } from "../data/home.md";
+import {
+  Content as HomeMiddle,
+  rawContent as homeMiddleRaw,
+} from "../data/home-middle.md";
+import {
+  Content as HomeBottom,
+  rawContent as homeBottomRaw,
+} from "../data/home-bottom.md";
 
 // home.md is edited via Pages CMS ("Home page"); fall back to the site title
 // if the heading is missing or blank.
@@ -19,6 +27,11 @@ const home = z
   .object({ title: z.string().trim().min(1).optional().catch(undefined) })
   .parse(frontmatter ?? {});
 const heroTitle = home.title ?? SITE.title;
+
+// Optional text blocks, edited via Pages CMS ("Home page: ..."); an empty
+// file renders nothing.
+const hasMiddleText = homeMiddleRaw().trim().length > 0;
+const hasBottomText = homeBottomRaw().trim().length > 0;
 
 const posts = await getCollection("blog");
 
@@ -58,7 +71,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         <span class="sr-only">RSS-лента</span>
       </a>
 
-      <div class="intro">
+      <div class="home-text">
         <HomeIntro />
       </div>
       {
@@ -75,23 +88,28 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     <Hr />
 
     {featuredPosts.length > 0 && (
-      <>
-        <section id="featured">
-          <h2>Избранное</h2>
-          <ul>
-            {featuredPosts.map(({ data, id }) => (
-              <Card
-                href={`/posts/${id}/`}
-                frontmatter={data}
-                thumbnail={thumbnails.get(id)}
-                secHeading={false}
-              />
-            ))}
-          </ul>
-        </section>
-        {recentPosts.length > 0 && <Hr />}
-      </>
+      <section id="featured">
+        <h2>Избранное</h2>
+        <ul>
+          {featuredPosts.map(({ data, id }) => (
+            <Card
+              href={`/posts/${id}/`}
+              frontmatter={data}
+              thumbnail={thumbnails.get(id)}
+              secHeading={false}
+            />
+          ))}
+        </ul>
+      </section>
     )}
+
+    {hasMiddleText && (
+      <div class="home-text home-text-middle">
+        <HomeMiddle />
+      </div>
+    )}
+
+    {featuredPosts.length > 0 && recentPosts.length > 0 && <Hr />}
 
     {recentPosts.length > 0 && (
       <section id="recent-posts">
@@ -120,6 +138,12 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         </svg>
       </LinkButton>
     </div>
+
+    {hasBottomText && (
+      <div class="home-text home-text-bottom">
+        <HomeBottom />
+      </div>
+    )}
   </main>
 
   <Footer />
@@ -136,7 +160,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
   @layer components {
     /* ===== Hero Section ===== */
     #hero {
-      @apply pb-6 pt-8;
+      @apply pt-8 pb-6;
     }
     #hero h1 {
       @apply my-4 inline-block text-3xl font-bold sm:my-8 sm:text-5xl;
@@ -145,25 +169,25 @@ const socialCount = SOCIALS.filter(social => social.active).length;
       @apply mb-6;
     }
     #hero .rss-icon {
-      @apply mb-2 h-6 w-6 scale-110 fill-skin-accent sm:mb-3 sm:scale-125;
+      @apply fill-skin-accent mb-2 h-6 w-6 scale-110 sm:mb-3 sm:scale-125;
     }
-    #hero .intro :global(p) {
+    .home-text :global(p) {
       @apply my-2;
     }
-    #hero .intro :global(a) {
-      @apply underline decoration-dashed underline-offset-4 hover:text-skin-accent;
+    .home-text :global(a) {
+      @apply hover:text-skin-accent underline decoration-dashed underline-offset-4;
     }
     .social-wrapper {
       @apply mt-4 flex flex-col sm:flex-row sm:items-center;
     }
     .social-links {
-      @apply mb-1 mr-2 whitespace-nowrap sm:mb-0;
+      @apply mr-2 mb-1 whitespace-nowrap sm:mb-0;
     }
 
     /* ===== Featured & Recent Posts Sections ===== */
     #featured,
     #recent-posts {
-      @apply pb-6 pt-12;
+      @apply pt-12 pb-6;
     }
     #featured h2,
     #recent-posts h2 {
@@ -171,6 +195,14 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     }
     .all-posts-btn-wrapper {
       @apply my-8 text-center;
+    }
+
+    /* ===== Optional text blocks (home-middle.md, home-bottom.md) ===== */
+    .home-text-middle {
+      @apply pb-6;
+    }
+    .home-text-bottom {
+      @apply mb-8;
     }
   }
 </style>
