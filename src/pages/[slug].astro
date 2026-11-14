@@ -1,0 +1,25 @@
+---
+import { getCollection } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+
+export async function getStaticPaths() {
+  // Slugs already taken by built-in routes; CMS pages with these slugs are skipped.
+  const RESERVED_SLUGS = ["posts", "tags", "search", "404"];
+  const pages = await getCollection(
+    "pages",
+    ({ data, slug }) => !data.draft && !RESERVED_SLUGS.includes(slug)
+  );
+  return pages.map(page => ({ params: { slug: page.slug }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const { Content } = await page.render();
+---
+
+<PageLayout
+  title={page.data.title}
+  description={page.data.description}
+  slug={page.slug}
+>
+  <Content />
+</PageLayout>

@@ -33,4 +33,16 @@ const blog = defineCollection({
       }),
 });
 
-export const collections = { blog };
+const pages = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    draft: z.boolean().optional(),
+    showInMenu: z.boolean().optional(),
+    menuLabel: z.string().optional(),
+    menuOrder: z.number().default(100),
+  }),
+});
+
+export const collections = { blog, pages };

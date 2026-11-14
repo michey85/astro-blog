@@ -29,11 +29,19 @@ content:
       - { name: featuredImageAlt, label: Featured image alt text, type: string }
       - { name: description, label: Description, type: string }
       - { name: body, label: Body, type: rich-text }
-  - name: about
-    label: About page
-    type: file
-    path: src/pages/about.md
+  - name: pages
+    label: Pages
+    type: collection
+    path: src/content/pages
+    filename: "{fields.slug}.md"
+    view:
+      fields: [ title, slug, showInMenu, draft ]
     fields:
-      - { name: layout, type: string, hidden: true, default: "../layouts/AboutLayout.astro" }
-      - { name: title, label: Title, type: string }
+      - { name: title, label: Title, type: string, required: true }
+      - { name: slug, label: "Slug (URL: /slug/)", type: string, required: true, pattern: { regex: "^[a-z0-9]+(-[a-z0-9]+)*$", message: "Lowercase latin letters, digits and dashes only" } }
+      - { name: description, label: Description, type: string }
+      - { name: showInMenu, label: Show in menu, type: boolean }
+      - { name: menuLabel, label: Menu label (defaults to title), type: string }
+      - { name: menuOrder, label: Menu order (lower comes first), type: number, default: 100 }
+      - { name: draft, label: Draft, type: boolean }
       - { name: body, label: Body, type: rich-text, options: { input: public/assets, output: /assets } }
