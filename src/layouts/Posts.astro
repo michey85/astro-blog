@@ -24,9 +24,9 @@ const thumbnails = new Map(
 );
 ---
 
-<Layout title={`Posts | ${SITE.title}`}>
+<Layout title={`Посты | ${SITE.title}`}>
   <Header activeNav="posts" />
-  <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
+  <Main pageTitle="Посты" pageDesc="Все опубликованные статьи.">
     <ul>
       {
         paginatedPosts.map(({ data, slug }) => (
