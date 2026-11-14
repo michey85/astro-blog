@@ -21,7 +21,7 @@ const { currentPage, totalPages, paginatedPosts, tag, tagName } = Astro.props;
 
 const thumbnails = new Map(
   await Promise.all(
-    paginatedPosts.map(async p => [p.slug, await getThumbnail(p.data)] as const)
+    paginatedPosts.map(async p => [p.id, await getThumbnail(p.data)] as const)
   )
 );
 ---
@@ -35,15 +35,13 @@ const thumbnails = new Map(
   >
     <h1 slot="title" transition:name={tag}>{`Тег:${tag}`}</h1>
     <ul>
-      {
-        paginatedPosts.map(({ data, slug }) => (
-          <Card
-            href={`/posts/${slug}/`}
-            frontmatter={data}
-            thumbnail={thumbnails.get(slug)}
-          />
-        ))
-      }
+      {paginatedPosts.map(({ data, id }) => (
+        <Card
+          href={`/posts/${id}/`}
+          frontmatter={data}
+          thumbnail={thumbnails.get(id)}
+        />
+      ))}
     </ul>
   </Main>
 

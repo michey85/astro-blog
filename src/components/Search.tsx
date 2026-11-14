@@ -26,7 +26,7 @@ export default function SearchBar({ searchList }: Props) {
     null
   );
 
-  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputVal(e.currentTarget.value);
   };
 
@@ -83,10 +83,10 @@ export default function SearchBar({ searchList }: Props) {
           <span className="sr-only">Поиск</span>
         </span>
         <input
-          className="block w-full rounded border border-skin-fill 
-        border-opacity-40 bg-skin-fill py-3 pl-10
-        pr-3 placeholder:italic placeholder:text-opacity-75 
-        focus:border-skin-accent focus:outline-none"
+          className="block w-full rounded-sm border border-skin-base/40
+        bg-skin-fill py-3 pl-10
+        pr-3 placeholder:italic
+        focus:border-skin-accent focus:outline-hidden"
           placeholder="Искать..."
           type="text"
           name="search"

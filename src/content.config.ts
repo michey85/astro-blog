@@ -1,8 +1,10 @@
 import { SITE } from "@config";
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 
 const blog = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/blog" }),
   schema: ({ image }) =>
     z
       .object({
@@ -15,7 +17,7 @@ const blog = defineCollection({
         tags: z.array(z.string()).default(["others"]),
         ogImage: image()
           .refine(img => img.width >= 1200 && img.height >= 630, {
-            message: "OpenGraph image must be at least 1200 X 630 pixels!",
+            error: "OpenGraph image must be at least 1200 X 630 pixels!",
           })
           .or(z.string())
           .optional(),
@@ -28,13 +30,13 @@ const blog = defineCollection({
         canonicalURL: z.string().optional(),
       })
       .refine(data => !data.featuredImage || data.featuredImageAlt?.trim(), {
-        message: "featuredImageAlt is required when featuredImage is set",
+        error: "featuredImageAlt is required when featuredImage is set",
         path: ["featuredImageAlt"],
       }),
 });
 
 const pages = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/pages" }),
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),

@@ -19,30 +19,35 @@ const { props } = Astro;
 
 <Breadcrumbs />
 <main id="main-content">
-  {
-    "titleTransition" in props ? (
-      <h1>
-        {props.pageTitle[0]}
-        <span transition:name={props.titleTransition}>
-          {props.pageTitle[1]}
-        </span>
-      </h1>
-    ) : (
-      <h1>{props.pageTitle}</h1>
-    )
-  }
+  {"titleTransition" in props ? (
+    <h1>
+      {props.pageTitle[0]}
+      <span transition:name={props.titleTransition}>{props.pageTitle[1]}</span>
+    </h1>
+  ) : (
+    <h1>{props.pageTitle}</h1>
+  )}
   <p>{props.pageDesc}</p>
   <slot />
 </main>
 
 <style>
-  #main-content {
-    @apply mx-auto w-full max-w-3xl px-4 pb-4;
-  }
-  #main-content h1 {
-    @apply text-2xl font-semibold sm:text-3xl;
-  }
-  #main-content p {
-    @apply mb-6 mt-2 italic;
+  @reference "../styles/base.css";
+  /*
+   * Components layer, so utility classes in the markup still win (as in Tailwind 3).
+   * The order statement keeps layers correct even if this <style> is emitted
+   * before the main stylesheet.
+   */
+  @layer theme, base, components, utilities;
+  @layer components {
+    #main-content {
+      @apply mx-auto w-full max-w-3xl px-4 pb-4;
+    }
+    #main-content h1 {
+      @apply text-2xl font-semibold sm:text-3xl;
+    }
+    #main-content p {
+      @apply mb-6 mt-2 italic;
+    }
   }
 </style>

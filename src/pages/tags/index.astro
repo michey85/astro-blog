@@ -17,7 +17,9 @@ let tags = getUniqueTags(posts);
   <Header activeNav="tags" />
   <Main pageTitle="Теги" pageDesc="Все теги, используемые в постах.">
     <ul>
-      {tags.map(({ tag, tagName }) => <Tag {tag} {tagName} size="lg" />)}
+      {tags.map(({ tag, tagName }) => (
+        <Tag {tag} {tagName} size="lg" />
+      ))}
     </ul>
   </Main>
   <Footer />

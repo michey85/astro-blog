@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 
 export async function getStaticPaths() {
@@ -7,19 +7,19 @@ export async function getStaticPaths() {
   const RESERVED_SLUGS = ["posts", "tags", "search", "404"];
   const pages = await getCollection(
     "pages",
-    ({ data, slug }) => !data.draft && !RESERVED_SLUGS.includes(slug)
+    ({ data, id }) => !data.draft && !RESERVED_SLUGS.includes(id)
   );
-  return pages.map(page => ({ params: { slug: page.slug }, props: { page } }));
+  return pages.map(page => ({ params: { slug: page.id }, props: { page } }));
 }
 
 const { page } = Astro.props;
-const { Content } = await page.render();
+const { Content } = await render(page);
 ---
 
 <PageLayout
   title={page.data.title}
   description={page.data.description}
-  slug={page.slug}
+  slug={page.id}
 >
   <Content />
 </PageLayout>
