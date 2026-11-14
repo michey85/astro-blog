@@ -8,6 +8,7 @@ import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "@utils/slugify";
 import ShareLinks from "@components/ShareLinks.astro";
 import { SITE } from "@config";
+import { Image } from "astro:assets";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -24,6 +25,8 @@ const {
   pubDatetime,
   modDatetime,
   tags,
+  featuredImage,
+  featuredImageAlt,
 } = post.data;
 
 const { Content } = await post.render();
@@ -73,6 +76,18 @@ const layoutProps = {
       size="lg"
       className="my-2"
     />
+    {
+      featuredImage && (
+        <Image
+          src={featuredImage}
+          alt={featuredImageAlt ?? ""}
+          widths={[640, 960, 1536]}
+          sizes="(min-width: 768px) 768px, 100vw"
+          loading="eager"
+          class="mt-6 w-full rounded-md"
+        />
+      )
+    }
     <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
       <Content />
     </article>

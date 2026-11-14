@@ -18,6 +18,11 @@ const blog = defineCollection({
         })
         .or(z.string())
         .optional(),
+      featuredImage: z.preprocess(
+        v => (v === "" || v === null ? undefined : v),
+        image().optional()
+      ),
+      featuredImageAlt: z.string().optional(),
       description: z.string(),
       canonicalURL: z.string().optional(),
     }),
