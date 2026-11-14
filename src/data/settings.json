@@ -1,9 +1,25 @@
 {
   "title": "AstroPaper",
   "socials": [
-    { "name": "Github", "href": "https://github.com/satnaing/astro-paper" },
-    { "name": "Facebook", "href": "https://github.com/satnaing/astro-paper" },
-    { "name": "Instagram", "href": "https://github.com/satnaing/astro-paper" },
-    { "name": "LinkedIn", "href": "https://github.com/satnaing/astro-paper" }
+    {
+      "name": "Telegram",
+      "href": "https://github.com/satnaing/astro-paper",
+      "active": true
+    },
+    {
+      "name": "YouTube",
+      "href": "https://github.com/satnaing/astro-paper",
+      "active": true
+    },
+    {
+      "name": "Instagram",
+      "href": "https://github.com/satnaing/astro-paper",
+      "active": false
+    },
+    {
+      "name": "LinkedIn",
+      "href": "https://github.com/satnaing/astro-paper",
+      "active": false
+    }
   ]
 }
