@@ -1,5 +1,5 @@
 ---
-import { LOCALE, SITE } from "@config";
+import { FAVICON_TYPE, LOCALE, SITE } from "@config";
 import "@styles/base.css";
 import { ClientRouter } from "astro:transitions";
 
@@ -20,7 +20,7 @@ const {
   title = SITE.title,
   author: authorProp,
   description: descriptionProp,
-  ogImage = SITE.ogImage,
+  ogImage,
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
   pubDatetime,
   modDatetime,
@@ -31,21 +31,8 @@ const {
 const description = descriptionProp?.trim() || SITE.desc;
 const author = authorProp?.trim() || SITE.author;
 
-const faviconTypes: Record<string, string> = {
-  svg: "image/svg+xml",
-  png: "image/png",
-  ico: "image/x-icon",
-  webp: "image/webp",
-};
-const faviconExt = SITE.favicon
-  .split(/[?#]/)[0]
-  .split(".")
-  .pop()
-  ?.toLowerCase();
-const faviconType = faviconExt ? faviconTypes[faviconExt] : undefined;
-
 const socialImageURL = new URL(
-  ogImage ?? SITE.ogImage ?? "og.png",
+  ogImage?.trim() || SITE.ogImage || "/og.png",
   Astro.url.origin
 ).href;
 ---
@@ -58,7 +45,7 @@ const socialImageURL = new URL(
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type={faviconType} href={SITE.favicon} />
+    <link rel="icon" type={FAVICON_TYPE} href={SITE.favicon} />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
 

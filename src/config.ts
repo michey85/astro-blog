@@ -10,13 +10,45 @@ const socialNames = Object.keys(socialIcons) as [
   ...(keyof typeof socialIcons)[],
 ];
 
+// Optional public asset: a root-relative path or a full URL; empty → undefined.
+const assetPath = (field: string, example: string) =>
+  z
+    .string()
+    .trim()
+    .nullish()
+    // "//x.png" would be protocol-relative (host "x.png"); collapse to "/x.png".
+    .transform(v => v?.replace(/^\/{2,}/, "/") || undefined)
+    .refine(v => !v || v.startsWith("/") || /^https?:\/\//.test(v), {
+      message: `Site settings: ${field} must be a path like ${example} or a full URL`,
+    });
+
+// http(s) origin only: no path, query, hash or credentials.
+const isBareOrigin = (v: string) => {
+  if (/[?#\s]/.test(v) || !URL.canParse(v)) return false;
+  const u = new URL(v);
+  return (
+    /^https?:$/.test(u.protocol) &&
+    u.pathname === "/" &&
+    !u.username &&
+    !u.password
+  );
+};
+
+const faviconTypes: Record<string, string> = {
+  svg: "image/svg+xml",
+  png: "image/png",
+  ico: "image/x-icon",
+  webp: "image/webp",
+};
+
 const settingsSchema = z.object({
   title: z.string().trim().min(1, "Site settings: title must not be empty"),
   website: z
     .string()
     .trim()
-    .regex(
-      /^https?:\/\/[^/\s]+\/?$/,
+    // .pages.yml has a looser regex for the same field (YAML can't import this).
+    .refine(
+      isBareOrigin,
       "Site settings: website must be a bare origin like https://example.com"
     )
     .transform(v => (v.endsWith("/") ? v : `${v}/`)),
@@ -25,24 +57,10 @@ const settingsSchema = z.object({
     .trim()
     .min(1, "Site settings: description must not be empty"),
   author: z.string().trim().min(1, "Site settings: author must not be empty"),
-  ogImage: z
-    .string()
-    .trim()
-    .nullish()
-    .transform(v => v || undefined)
-    .refine(v => !v || v.startsWith("/") || /^https?:\/\//.test(v), {
-      message:
-        "Site settings: ogImage must be a path like /og.jpg or a full URL",
-    }),
-  favicon: z
-    .string()
-    .trim()
-    .nullish()
-    .transform(v => v || "/favicon.svg")
-    .refine(v => v.startsWith("/") || /^https?:\/\//.test(v), {
-      message:
-        "Site settings: favicon must be a path like /favicon.png or a full URL",
-    }),
+  ogImage: assetPath("ogImage", "/og.jpg"),
+  favicon: assetPath("favicon", "/favicon.png").transform(
+    v => v ?? "/favicon.svg"
+  ),
   socials: z
     .array(
       z.object({
@@ -79,6 +97,12 @@ export const SITE: Site = {
   postPerPage: 10,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes
 };
+
+// MIME type for <link rel="icon">; undefined for unknown extensions.
+export const FAVICON_TYPE: string | undefined =
+  faviconTypes[
+    SITE.favicon.split(/[?#]/)[0].split(".").pop()?.toLowerCase() ?? ""
+  ];
 
 export const LOCALE = {
   lang: "ru", // html lang code. Set this empty and default will be "en"
