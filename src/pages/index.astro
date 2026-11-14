@@ -30,7 +30,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 const thumbnails = new Map(
   await Promise.all(
     [...featuredPosts, ...recentPosts.slice(0, 4)].map(
-      async p => [p.slug, await getThumbnail(p.data)] as const
+      async p => [p.id, await getThumbnail(p.data)] as const
     )
   )
 );
@@ -50,12 +50,10 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         aria-label="RSS-лента"
         title="RSS-лента"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="rss-icon"
-          ><path
-            d="M19 20.001C19 11.729 12.271 5 4 5v2c7.168 0 13 5.832 13 13.001h2z"
-          ></path><path
-            d="M12 20.001h2C14 14.486 9.514 10 4 10v2c4.411 0 8 3.589 8 8.001z"
-          ></path><circle cx="6" cy="18" r="2"></circle>
+        <svg xmlns="http://www.w3.org/2000/svg" class="rss-icon">
+          <path d="M19 20.001C19 11.729 12.271 5 4 5v2c7.168 0 13 5.832 13 13.001h2z"></path>
+          <path d="M12 20.001h2C14 14.486 9.514 10 4 10v2c4.411 0 8 3.589 8 8.001z"></path>
+          <circle cx="6" cy="18" r="2"></circle>
         </svg>
         <span class="sr-only">RSS-лента</span>
       </a>
@@ -76,55 +74,49 @@ const socialCount = SOCIALS.filter(social => social.active).length;
 
     <Hr />
 
-    {
-      featuredPosts.length > 0 && (
-        <>
-          <section id="featured">
-            <h2>Избранное</h2>
-            <ul>
-              {featuredPosts.map(({ data, slug }) => (
-                <Card
-                  href={`/posts/${slug}/`}
-                  frontmatter={data}
-                  thumbnail={thumbnails.get(slug)}
-                  secHeading={false}
-                />
-              ))}
-            </ul>
-          </section>
-          {recentPosts.length > 0 && <Hr />}
-        </>
-      )
-    }
-
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts">
-          <h2>Последние посты</h2>
+    {featuredPosts.length > 0 && (
+      <>
+        <section id="featured">
+          <h2>Избранное</h2>
           <ul>
-            {recentPosts.map(
-              ({ data, slug }, index) =>
-                index < 4 && (
-                  <Card
-                    href={`/posts/${slug}/`}
-                    frontmatter={data}
-                    thumbnail={thumbnails.get(slug)}
-                    secHeading={false}
-                  />
-                )
-            )}
+            {featuredPosts.map(({ data, id }) => (
+              <Card
+                href={`/posts/${id}/`}
+                frontmatter={data}
+                thumbnail={thumbnails.get(id)}
+                secHeading={false}
+              />
+            ))}
           </ul>
         </section>
-      )
-    }
+        {recentPosts.length > 0 && <Hr />}
+      </>
+    )}
+
+    {recentPosts.length > 0 && (
+      <section id="recent-posts">
+        <h2>Последние посты</h2>
+        <ul>
+          {recentPosts.map(
+            ({ data, id }, index) =>
+              index < 4 && (
+                <Card
+                  href={`/posts/${id}/`}
+                  frontmatter={data}
+                  thumbnail={thumbnails.get(id)}
+                  secHeading={false}
+                />
+              )
+          )}
+        </ul>
+      </section>
+    )}
 
     <div class="all-posts-btn-wrapper">
       <LinkButton href="/posts/">
         Все посты
-        <svg xmlns="http://www.w3.org/2000/svg"
-          ><path
-            d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
-          ></path>
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"></path>
         </svg>
       </LinkButton>
     </div>
@@ -134,42 +126,51 @@ const socialCount = SOCIALS.filter(social => social.active).length;
 </Layout>
 
 <style>
-  /* ===== Hero Section ===== */
-  #hero {
-    @apply pb-6 pt-8;
-  }
-  #hero h1 {
-    @apply my-4 inline-block text-3xl font-bold sm:my-8 sm:text-5xl;
-  }
-  #hero .rss-link {
-    @apply mb-6;
-  }
-  #hero .rss-icon {
-    @apply mb-2 h-6 w-6 scale-110 fill-skin-accent sm:mb-3 sm:scale-125;
-  }
-  #hero .intro :global(p) {
-    @apply my-2;
-  }
-  #hero .intro :global(a) {
-    @apply underline decoration-dashed underline-offset-4 hover:text-skin-accent;
-  }
-  .social-wrapper {
-    @apply mt-4 flex flex-col sm:flex-row sm:items-center;
-  }
-  .social-links {
-    @apply mb-1 mr-2 whitespace-nowrap sm:mb-0;
-  }
+  @reference "../styles/base.css";
+  /*
+   * Components layer, so utility classes in the markup still win (as in Tailwind 3).
+   * The order statement keeps layers correct even if this <style> is emitted
+   * before the main stylesheet.
+   */
+  @layer theme, base, components, utilities;
+  @layer components {
+    /* ===== Hero Section ===== */
+    #hero {
+      @apply pb-6 pt-8;
+    }
+    #hero h1 {
+      @apply my-4 inline-block text-3xl font-bold sm:my-8 sm:text-5xl;
+    }
+    #hero .rss-link {
+      @apply mb-6;
+    }
+    #hero .rss-icon {
+      @apply mb-2 h-6 w-6 scale-110 fill-skin-accent sm:mb-3 sm:scale-125;
+    }
+    #hero .intro :global(p) {
+      @apply my-2;
+    }
+    #hero .intro :global(a) {
+      @apply underline decoration-dashed underline-offset-4 hover:text-skin-accent;
+    }
+    .social-wrapper {
+      @apply mt-4 flex flex-col sm:flex-row sm:items-center;
+    }
+    .social-links {
+      @apply mb-1 mr-2 whitespace-nowrap sm:mb-0;
+    }
 
-  /* ===== Featured & Recent Posts Sections ===== */
-  #featured,
-  #recent-posts {
-    @apply pb-6 pt-12;
-  }
-  #featured h2,
-  #recent-posts h2 {
-    @apply text-2xl font-semibold tracking-wide;
-  }
-  .all-posts-btn-wrapper {
-    @apply my-8 text-center;
+    /* ===== Featured & Recent Posts Sections ===== */
+    #featured,
+    #recent-posts {
+      @apply pb-6 pt-12;
+    }
+    #featured h2,
+    #recent-posts h2 {
+      @apply text-2xl font-semibold tracking-wide;
+    }
+    .all-posts-btn-wrapper {
+      @apply my-8 text-center;
+    }
   }
 </style>

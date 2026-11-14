@@ -4,7 +4,7 @@ import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
-import type { CollectionEntry } from "astro:content";
+import { type CollectionEntry, render } from "astro:content";
 import { slugifyStr } from "@utils/slugify";
 import ShareLinks from "@components/ShareLinks.astro";
 import { SITE } from "@config";
@@ -29,7 +29,7 @@ const {
   featuredImageAlt,
 } = post.data;
 
-const { Content } = await post.render();
+const { Content } = await render(post);
 
 const ogImageUrl = typeof ogImage === "string" ? ogImage : ogImage?.src;
 const ogUrl = new URL(
@@ -61,56 +61,53 @@ const layoutProps = {
       class="focus-outline mb-2 mt-8 flex hover:opacity-75"
       onclick="(() => (history.length === 1) ? window.location = '/' : history.back())()"
     >
-      <svg xmlns="http://www.w3.org/2000/svg"
-        ><path
-          d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"
-        ></path>
-      </svg><span>Назад</span>
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"></path>
+      </svg>
+      <span>Назад</span>
     </button>
   </div>
   <main id="main-content">
-    <h1 transition:name={slugifyStr(title)} class="post-title">{title}</h1>
+    <h1 transition:name={slugifyStr(title)} class="post-title">
+      {title}
+    </h1>
     <Datetime
       pubDatetime={pubDatetime}
       modDatetime={modDatetime}
       size="lg"
       className="my-2"
     />
-    {
-      featuredImage && (
-        <Image
-          src={featuredImage}
-          alt={featuredImageAlt ?? ""}
-          widths={[
-            ...[640, 960, 1536].filter(w => w < featuredImage.width),
-            featuredImage.width,
-          ]}
-          sizes={`(min-width: 768px) ${Math.min(featuredImage.width, 768)}px, 100vw`}
-          loading="eager"
-          class="mx-auto mt-6 h-auto max-w-full rounded-md"
-          style={`width: ${Math.min(featuredImage.width, 768)}px`}
-        />
-      )
-    }
+    {featuredImage && (
+      <Image
+        src={featuredImage}
+        alt={featuredImageAlt ?? ""}
+        widths={[
+          ...[640, 960, 1536].filter(w => w < featuredImage.width),
+          featuredImage.width,
+        ]}
+        sizes={`(min-width: 768px) ${Math.min(featuredImage.width, 768)}px, 100vw`}
+        loading="eager"
+        class="mx-auto mt-6 h-auto max-w-full rounded-md"
+        style={`width: ${Math.min(featuredImage.width, 768)}px`}
+      />
+    )}
     <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
       <Content />
     </article>
 
     <ul class="my-8">
-      {tags.map(tag => <Tag tag={slugifyStr(tag)} tagName={tag} />)}
+      {tags.map(tag => (
+        <Tag tag={slugifyStr(tag)} tagName={tag} />
+      ))}
     </ul>
 
-    <div
-      class="flex flex-col-reverse items-center justify-between gap-6 sm:flex-row-reverse sm:items-end sm:gap-4"
-    >
+    <div class="flex flex-col-reverse items-center justify-between gap-6 sm:flex-row-reverse sm:items-end sm:gap-4">
       <button
         id="back-to-top"
         class="focus-outline whitespace-nowrap py-1 hover:opacity-75"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="rotate-90">
-          <path
-            d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"
-          ></path>
+          <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"></path>
         </svg>
         <span>Наверх</span>
       </button>
@@ -122,15 +119,24 @@ const layoutProps = {
 </Layout>
 
 <style>
-  main {
-    @apply mx-auto w-full max-w-3xl px-4 pb-12;
-  }
-  .post-title {
-    @apply text-2xl font-semibold text-skin-accent;
+  @reference "../styles/base.css";
+  /*
+   * Components layer, so utility classes in the markup still win (as in Tailwind 3).
+   * The order statement keeps layers correct even if this <style> is emitted
+   * before the main stylesheet.
+   */
+  @layer theme, base, components, utilities;
+  @layer components {
+    main {
+      @apply mx-auto w-full max-w-3xl px-4 pb-12;
+    }
+    .post-title {
+      @apply text-2xl font-semibold text-skin-accent;
+    }
   }
 </style>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   /** Create a progress indicator
    *  at the top */
   function createProgressBar() {
@@ -169,6 +175,13 @@ const layoutProps = {
     }
   }
   document.addEventListener("scroll", updateScrollProgress);
+  // This script reruns on every client-side navigation to a post, while
+  // `document` persists, so drop the listener before the page is swapped out.
+  document.addEventListener(
+    "astro:before-swap",
+    () => document.removeEventListener("scroll", updateScrollProgress),
+    { once: true }
+  );
 
   /** Attaches links to headings in the document,
    *  allowing sharing of sections easily */
@@ -198,7 +211,7 @@ const layoutProps = {
 
       let copyButton = document.createElement("button");
       copyButton.className =
-        "copy-code absolute right-3 -top-3 rounded bg-skin-card px-2 py-1 text-xs leading-4 text-skin-base font-medium";
+        "copy-code absolute right-3 -top-3 rounded-sm bg-skin-card px-2 py-1 text-xs leading-4 text-skin-base font-medium";
       copyButton.innerHTML = copyButtonLabel;
       codeBlock.setAttribute("tabindex", "0");
       codeBlock.appendChild(copyButton);

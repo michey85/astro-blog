@@ -31,6 +31,8 @@ export default () => {
 
       <div
         style={{
+          // positioned, so it paints above the absolute "shadow" card above
+          position: "relative",
           border: "4px solid #000",
           background: "#fefbfb",
           borderRadius: "4px",
