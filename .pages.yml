@@ -71,6 +71,11 @@ content:
     format: json
     fields:
       - { name: title, label: "Название сайта (шапка, вкладка браузера, RSS)", type: string, required: true }
+      - { name: website, label: "Адрес сайта с https:// (для canonical, og:image, sitemap, RSS). Поменяйте при переезде на другой домен", type: string, required: true, pattern: { regex: "^https?://[^/\\s]+/?$", message: "Только домен с протоколом, например https://example.com" } }
+      - { name: description, label: "Описание сайта (meta description, соцсети, RSS, OG-картинка). Обычно 1–2 предложения, до ~160 символов", type: text, required: true }
+      - { name: author, label: "Автор сайта (meta author и автор записей по умолчанию)", type: string, required: true }
+      - { name: ogImage, label: "Картинка для соцсетей (og:image) по умолчанию, лучше 1200×630. Пусто — сгенерируется автоматически из названия и описания", type: image, options: { media: public, extensions: [jpg, jpeg, png, webp] } }
+      - { name: favicon, label: "Иконка сайта (вкладка браузера): SVG, PNG или ICO, лучше квадратная", type: image, options: { media: public, extensions: [svg, png, ico, webp] } }
       - name: socials
         label: Ссылки на соцсети (показываются в этом порядке)
         type: object

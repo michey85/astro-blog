@@ -8,7 +8,14 @@ const blog = defineCollection({
   schema: ({ image }) =>
     z
       .object({
-        author: z.string().default(SITE.author),
+        // Pages CMS may save an empty author; treat it as "use site author".
+        author: z.preprocess(
+          v =>
+            (typeof v === "string" && v.trim() === "") || v === null
+              ? undefined
+              : v,
+          z.string().default(SITE.author)
+        ),
         pubDatetime: z.date(),
         modDatetime: z.date().optional().nullable(),
         title: z.string(),

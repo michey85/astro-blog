@@ -12,6 +12,37 @@ const socialNames = Object.keys(socialIcons) as [
 
 const settingsSchema = z.object({
   title: z.string().trim().min(1, "Site settings: title must not be empty"),
+  website: z
+    .string()
+    .trim()
+    .regex(
+      /^https?:\/\/[^/\s]+\/?$/,
+      "Site settings: website must be a bare origin like https://example.com"
+    )
+    .transform(v => (v.endsWith("/") ? v : `${v}/`)),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Site settings: description must not be empty"),
+  author: z.string().trim().min(1, "Site settings: author must not be empty"),
+  ogImage: z
+    .string()
+    .trim()
+    .nullish()
+    .transform(v => v || undefined)
+    .refine(v => !v || v.startsWith("/") || /^https?:\/\//.test(v), {
+      message:
+        "Site settings: ogImage must be a path like /og.jpg or a full URL",
+    }),
+  favicon: z
+    .string()
+    .trim()
+    .nullish()
+    .transform(v => v || "/favicon.svg")
+    .refine(v => v.startsWith("/") || /^https?:\/\//.test(v), {
+      message:
+        "Site settings: favicon must be a path like /favicon.png or a full URL",
+    }),
   socials: z
     .array(
       z.object({
@@ -38,11 +69,12 @@ if (!parsedSettings.success) {
 const settings = parsedSettings.data;
 
 export const SITE: Site = {
-  website: "https://astro-paper.pages.dev/", // replace this with your deployed domain
-  author: "Sat Naing",
-  desc: "A minimal, responsive and SEO-friendly Astro blog theme.",
+  website: settings.website, // canonical, og:image, sitemap, RSS
+  author: settings.author,
+  desc: settings.description,
   title: settings.title,
-  ogImage: "astropaper-og.jpg",
+  favicon: settings.favicon,
+  ogImage: settings.ogImage, // empty → auto-generated /og.png
   lightAndDarkMode: true,
   postPerPage: 10,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes
