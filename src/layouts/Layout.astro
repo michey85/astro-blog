@@ -1,5 +1,5 @@
 ---
-import { LOCALE, SITE } from "@config";
+import { FAVICON_TYPE, LOCALE, SITE } from "@config";
 import "@styles/base.css";
 import { ClientRouter } from "astro:transitions";
 
@@ -18,17 +18,21 @@ export interface Props {
 
 const {
   title = SITE.title,
-  author = SITE.author,
-  description = SITE.desc,
-  ogImage = SITE.ogImage,
+  author: authorProp,
+  description: descriptionProp,
+  ogImage,
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
   pubDatetime,
   modDatetime,
   scrollSmooth = false,
 } = Astro.props;
 
+// Empty strings from the CMS should fall back to the site description too.
+const description = descriptionProp?.trim() || SITE.desc;
+const author = authorProp?.trim() || SITE.author;
+
 const socialImageURL = new URL(
-  ogImage ?? SITE.ogImage ?? "og.png",
+  ogImage?.trim() || SITE.ogImage || "/og.png",
   Astro.url.origin
 ).href;
 ---
@@ -41,7 +45,7 @@ const socialImageURL = new URL(
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type={FAVICON_TYPE} href={SITE.favicon} />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
 

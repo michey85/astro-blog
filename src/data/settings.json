@@ -1,5 +1,10 @@
 {
   "title": "OpenYogaJournal",
+  "website": "https://astro-paper.pages.dev/",
+  "description": "A minimal, responsive and SEO-friendly Astro blog theme.",
+  "author": "Sat Naing",
+  "ogImage": "/astropaper-og.jpg",
+  "favicon": "/favicon.svg",
   "socials": [
     {
       "name": "Telegram",
