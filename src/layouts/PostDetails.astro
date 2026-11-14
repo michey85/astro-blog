@@ -175,6 +175,13 @@ const layoutProps = {
     }
   }
   document.addEventListener("scroll", updateScrollProgress);
+  // This script reruns on every client-side navigation to a post, while
+  // `document` persists, so drop the listener before the page is swapped out.
+  document.addEventListener(
+    "astro:before-swap",
+    () => document.removeEventListener("scroll", updateScrollProgress),
+    { once: true }
+  );
 
   /** Attaches links to headings in the document,
    *  allowing sharing of sections easily */
