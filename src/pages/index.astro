@@ -8,18 +8,14 @@ import Hr from "@components/Hr.astro";
 import Card from "@components/Card";
 import getThumbnail from "@utils/getThumbnail";
 import Socials from "@components/Socials.astro";
+import HomeText from "@components/HomeText.astro";
 import getSortedPosts from "@utils/getSortedPosts";
+import hasRenderedContent from "@utils/hasRenderedContent";
 import { z } from "astro/zod";
 import { SITE, SOCIALS } from "@config";
 import { Content as HomeIntro, frontmatter } from "../data/home.md";
-import {
-  Content as HomeMiddle,
-  rawContent as homeMiddleRaw,
-} from "../data/home-middle.md";
-import {
-  Content as HomeBottom,
-  rawContent as homeBottomRaw,
-} from "../data/home-bottom.md";
+import * as homeMiddle from "../data/home-middle.md";
+import * as homeBottom from "../data/home-bottom.md";
 
 // home.md is edited via Pages CMS ("Home page"); fall back to the site title
 // if the heading is missing or blank.
@@ -28,10 +24,10 @@ const home = z
   .parse(frontmatter ?? {});
 const heroTitle = home.title ?? SITE.title;
 
-// Optional text blocks, edited via Pages CMS ("Home page: ..."); an empty
-// file renders nothing.
-const hasMiddleText = homeMiddleRaw().trim().length > 0;
-const hasBottomText = homeBottomRaw().trim().length > 0;
+// Optional text blocks, edited via Pages CMS ("Home page: ..."); a file that
+// renders to nothing is skipped entirely.
+const hasMiddleText = await hasRenderedContent(homeMiddle);
+const hasBottomText = await hasRenderedContent(homeBottom);
 
 const posts = await getCollection("blog");
 
@@ -71,7 +67,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         <span class="sr-only">RSS-лента</span>
       </a>
 
-      <div class="home-text">
+      <div class="intro">
         <HomeIntro />
       </div>
       {
@@ -104,12 +100,14 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     )}
 
     {hasMiddleText && (
-      <div class="home-text home-text-middle">
-        <HomeMiddle />
-      </div>
+      <HomeText class="py-6">
+        <homeMiddle.Content />
+      </HomeText>
     )}
 
-    {featuredPosts.length > 0 && recentPosts.length > 0 && <Hr />}
+    {(featuredPosts.length > 0 || hasMiddleText) && recentPosts.length > 0 && (
+      <Hr />
+    )}
 
     {recentPosts.length > 0 && (
       <section id="recent-posts">
@@ -140,9 +138,9 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     </div>
 
     {hasBottomText && (
-      <div class="home-text home-text-bottom">
-        <HomeBottom />
-      </div>
+      <HomeText class="pb-8">
+        <homeBottom.Content />
+      </HomeText>
     )}
   </main>
 
@@ -171,10 +169,10 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     #hero .rss-icon {
       @apply fill-skin-accent mb-2 h-6 w-6 scale-110 sm:mb-3 sm:scale-125;
     }
-    .home-text :global(p) {
+    #hero .intro :global(p) {
       @apply my-2;
     }
-    .home-text :global(a) {
+    #hero .intro :global(a) {
       @apply hover:text-skin-accent underline decoration-dashed underline-offset-4;
     }
     .social-wrapper {
@@ -195,14 +193,6 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     }
     .all-posts-btn-wrapper {
       @apply my-8 text-center;
-    }
-
-    /* ===== Optional text blocks (home-middle.md, home-bottom.md) ===== */
-    .home-text-middle {
-      @apply pb-6;
-    }
-    .home-text-bottom {
-      @apply mb-8;
     }
   }
 </style>
