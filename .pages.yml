@@ -1,86 +1,86 @@
 media:
   - name: public
-    label: Public files
+    label: Публичные файлы
     input: public
     output: /
   - name: images
-    label: Post images
+    label: Изображения записей
     input: src/assets/images
     output: "@assets/images"
     extensions: [png, jpg, jpeg, webp, avif, gif]
 content:
   - name: posts
-    label: Posts
+    label: Записи
     type: collection
     path: src/content/blog
     view:
       fields: [ title, draft, pubDatetime ]
     fields:
-      - { name: author, label: Author, type: string }
-      - { name: pubDatetime, label: Published date, type: date }
-      - { name: modDatetime, label: Modified date, type: date }
-      - { name: title, label: Title, type: string, required: true }
-      - { name: ogImage, label: OG image, type: string }
-      - { name: slug, label: Slug, type: string }
-      - { name: featured, label: Featured, type: boolean }
-      - { name: draft, label: Draft, type: boolean }
-      - { name: tags, label: Tags, type: string, list: true }
-      - { name: featuredImage, label: Featured image, type: image, options: { media: images } }
-      - { name: featuredImageAlt, label: Featured image alt text, type: string }
-      - { name: description, label: Description, type: string }
-      - { name: body, label: Body, type: rich-text }
+      - { name: author, label: Автор, type: string }
+      - { name: pubDatetime, label: Дата публикации, type: date }
+      - { name: modDatetime, label: Дата изменения, type: date }
+      - { name: title, label: Заголовок, type: string, required: true }
+      - { name: ogImage, label: OG-изображение, type: string }
+      - { name: slug, label: Слаг, type: string }
+      - { name: featured, label: Избранное, type: boolean }
+      - { name: draft, label: Черновик, type: boolean }
+      - { name: tags, label: Теги, type: string, list: true }
+      - { name: featuredImage, label: Главное изображение, type: image, options: { media: images } }
+      - { name: featuredImageAlt, label: Альтернативный текст главного изображения, type: string }
+      - { name: description, label: Описание, type: string }
+      - { name: body, label: Текст, type: rich-text }
   - name: pages
-    label: Pages
+    label: Страницы
     type: collection
     path: src/content/pages
     filename: "{fields.slug}.md"
     view:
       fields: [ title, slug, showInMenu, draft ]
     fields:
-      - { name: title, label: Title, type: string, required: true }
-      - { name: slug, label: "Slug (URL: /slug/)", type: string, required: true, pattern: { regex: "^[a-z0-9]+(-[a-z0-9]+)*$", message: "Lowercase latin letters, digits and dashes only" } }
-      - { name: description, label: Description, type: string }
-      - { name: showInMenu, label: Show in menu, type: boolean }
-      - { name: menuLabel, label: Menu label (defaults to title), type: string }
-      - { name: menuOrder, label: Menu order (lower comes first), type: number, default: 100 }
-      - { name: draft, label: Draft, type: boolean }
-      - { name: body, label: Body, type: rich-text, options: { input: public/assets, output: /assets } }
+      - { name: title, label: Заголовок, type: string, required: true }
+      - { name: slug, label: "Слаг (URL: /slug/)", type: string, required: true, pattern: { regex: "^[a-z0-9]+(-[a-z0-9]+)*$", message: "Только строчные латинские буквы, цифры и дефисы" } }
+      - { name: description, label: Описание, type: string }
+      - { name: showInMenu, label: Показывать в меню, type: boolean }
+      - { name: menuLabel, label: Подпись в меню (по умолчанию — заголовок), type: string }
+      - { name: menuOrder, label: Порядок в меню (меньше значение — выше), type: number, default: 100 }
+      - { name: draft, label: Черновик, type: boolean }
+      - { name: body, label: Текст, type: rich-text, options: { input: public/assets, output: /assets } }
   - name: home
-    label: Home page
+    label: Главная страница
     type: file
     path: src/data/home.md
     fields:
-      - { name: title, label: Heading, type: string, required: true }
-      - { name: body, label: Intro text, type: rich-text, options: { input: public/assets, output: /assets } }
+      - { name: title, label: Заголовок, type: string, required: true }
+      - { name: body, label: Вступительный текст, type: rich-text, options: { input: public/assets, output: /assets } }
   - name: home-middle
-    label: "Home page: text after featured posts"
+    label: "Главная: текст после избранных записей"
     type: file
     path: src/data/home-middle.md
     fields:
-      - { name: body, label: Text (leave empty to hide), type: rich-text, options: { input: public/assets, output: /assets } }
+      - { name: body, label: "Текст (оставьте пустым, чтобы скрыть)", type: rich-text, options: { input: public/assets, output: /assets } }
   - name: home-bottom
-    label: "Home page: text after all posts"
+    label: "Главная: текст после всех записей"
     type: file
     path: src/data/home-bottom.md
     fields:
-      - { name: body, label: Text (leave empty to hide), type: rich-text, options: { input: public/assets, output: /assets } }
+      - { name: body, label: "Текст (оставьте пустым, чтобы скрыть)", type: rich-text, options: { input: public/assets, output: /assets } }
   - name: settings
-    label: Site settings
+    label: Настройки сайта
     type: file
     path: src/data/settings.json
     format: json
     fields:
-      - { name: title, label: "Site title (header, browser tab, RSS)", type: string, required: true }
+      - { name: title, label: "Название сайта (шапка, вкладка браузера, RSS)", type: string, required: true }
       - name: socials
-        label: Social links (shown in this order)
+        label: Ссылки на соцсети (показываются в этом порядке)
         type: object
         list: true
         fields:
           - name: name
-            label: Network
+            label: Сеть
             type: select
             required: true
             options:
               values: [Github, Facebook, Instagram, LinkedIn, Mail, Twitter, Twitch, YouTube, WhatsApp, Snapchat, Pinterest, TikTok, CodePen, Discord, GitLab, Reddit, Skype, Steam, Telegram, Mastodon]
-          - { name: href, label: "URL (use mailto:you@example.com for Mail)", type: string, required: true }
-          - { name: active, label: Show on site, type: boolean, default: true }
+          - { name: href, label: "URL (для Mail используйте mailto:you@example.com)", type: string, required: true }
+          - { name: active, label: Показывать на сайте, type: boolean, default: true }
