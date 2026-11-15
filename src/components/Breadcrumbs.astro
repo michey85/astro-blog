@@ -1,4 +1,6 @@
 ---
+import { getEntry } from "astro:content";
+
 // Remove current url path and remove trailing slash if exists
 const currentUrlPath = Astro.url.pathname.replace(/\/+$/, "");
 
@@ -10,11 +12,18 @@ const breadcrumbList = currentUrlPath.split("/").slice(1);
 const LABELS: Record<string, string> = {
   posts: "Посты",
   tags: "Теги",
+  rubrics: "Рубрики",
   about: "Обо мне",
   search: "Поиск",
 };
-const label = (segment: string) =>
-  LABELS[segment] ?? decodeURIComponent(segment);
+const decode = (segment: string) => {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+};
+const label = (segment: string) => LABELS[segment] ?? decode(segment);
 
 // if breadcrumb is Home > Posts > 1 <etc>
 // replace Posts with Posts (page number)
@@ -32,6 +41,18 @@ breadcrumbList[0] === "tags" &&
       Number(breadcrumbList[2]) === 1 ? "" : "(стр. " + breadcrumbList[2] + ")"
     }`
   );
+
+// if breadcrumb is Home > Rubrics > [rubric] > [page]
+// replace [rubric] > [page] with the rubric title (page number)
+// The title is free-form CMS text, not a URL segment: it is rendered as is,
+// never decoded or looked up in LABELS.
+let rubricCrumb: string | undefined;
+if (breadcrumbList[0] === "rubrics" && breadcrumbList[1]) {
+  const rubric = await getEntry("rubrics", breadcrumbList[1]);
+  const page = Number(breadcrumbList[2]);
+  rubricCrumb = `${rubric?.data.title ?? decode(breadcrumbList[1])}${page > 1 ? ` (стр. ${page})` : ""}`;
+  breadcrumbList.splice(1, 2, rubricCrumb);
+}
 ---
 
 <nav class="breadcrumb" aria-label="Навигационная цепочка">
@@ -44,11 +65,11 @@ breadcrumbList[0] === "tags" &&
       index + 1 === breadcrumbList.length ? (
         <li>
           <span
-            class={`${index > 0 ? "lowercase" : "capitalize"}`}
+            class={rubricCrumb ? "" : index > 0 ? "lowercase" : "capitalize"}
             aria-current="page"
           >
             {/* make the last part lowercase in Home > Tags > some-tag */}
-            {label(breadcrumb)}
+            {rubricCrumb ?? label(breadcrumb)}
           </span>
         </li>
       ) : (

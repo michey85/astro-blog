@@ -1,0 +1,136 @@
+---
+// Site counters configured in Pages CMS ("Настройки сайта → Метрика и счётчики").
+//
+// position="head" — Yandex Metrika / Google Analytics loaders + custom <head> code.
+// position="body" — Metrika <noscript> pixel + custom code for the end of <body>.
+//
+// The site uses Astro's ClientRouter (SPA-style navigation), so:
+//  - head scripts are identical on every page → kept by the router and run once;
+//  - Metrika gets an explicit 'hit' on every client-side navigation;
+//  - GA4 counts navigations itself via "Enhanced measurement → Page changes
+//    based on browser history events" (on by default in GA4).
+//  - custom body code is wrapped in transition:persist so it isn't re-run
+//    (and counters aren't re-initialised) on every navigation.
+//  - limitation: custom code meant for counters/pixels only. Widgets that add
+//    their own elements to <body> (chat buttons, banners) disappear after the
+//    first client-side navigation, because the router replaces <body>.
+import { ANALYTICS } from "@config";
+
+export interface Props {
+  position: "head" | "body";
+}
+
+const { position } = Astro.props;
+// Only count visitors on the real production deploy: not in dev and not on
+// preview/branch deploys (e.g. Pages CMS branches), whichever host builds it.
+const env = process.env;
+const isPreviewDeploy =
+  (!!env.CF_PAGES_BRANCH && env.CF_PAGES_BRANCH !== "main") || // Cloudflare Pages
+  (!!env.VERCEL_ENV && env.VERCEL_ENV !== "production") || // Vercel
+  (!!env.CONTEXT && env.CONTEXT !== "production"); // Netlify
+const enabled = import.meta.env.PROD && !isPreviewDeploy;
+
+const {
+  yandexMetrikaId,
+  yandexWebvisor,
+  googleAnalyticsId,
+  headCode,
+  bodyCode,
+} = ANALYTICS;
+const ymId = yandexMetrikaId ? Number(yandexMetrikaId) : undefined;
+---
+
+{enabled && position === "head" && (
+  <>
+    {ymId && <script is:inline define:vars={{ ymId, webvisor: yandexWebvisor }}>
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) return;
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js",
+        "ym"
+      );
+
+      window.ym(ymId, "init", {
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true,
+        webvisor: webvisor,
+      });
+
+      // Count client-side (ClientRouter) navigations as page views.
+      // The #hash is ignored so in-page anchor jumps aren't counted as views.
+      var ymUrl = function () {
+        return location.href.split("#")[0];
+      };
+      var ymPrevUrl = ymUrl();
+      document.addEventListener("astro:page-load", function () {
+        var url = ymUrl();
+        if (url === ymPrevUrl) return; // initial load (counted by init) or same page
+        window.ym(ymId, "hit", url, {
+          title: document.title,
+          referer: ymPrevUrl,
+        });
+        ymPrevUrl = url;
+      });
+    </script>}
+
+    {googleAnalyticsId && (
+      <>
+        <script
+          is:inline
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+        />
+        <script is:inline define:vars={{ gaId: googleAnalyticsId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            window.dataLayer.push(arguments);
+          }
+          window.gtag = gtag;
+          gtag("js", new Date());
+          gtag("config", gaId);
+        </script>
+      </>
+    )}
+
+    {headCode && <Fragment set:html={headCode} />}
+  </>
+)}
+
+{enabled && position === "body" && (
+  <>
+    {ymId && (
+      <noscript>
+        <div>
+          <img
+            src={`https://mc.yandex.ru/watch/${ymId}`}
+            style="position:absolute; left:-9999px;"
+            alt=""
+          />
+        </div>
+      </noscript>
+    )}
+
+    {bodyCode && (
+      <div transition:persist="site-body-code" style="display: contents">
+        <Fragment set:html={bodyCode} />
+      </div>
+    )}
+  </>
+)}

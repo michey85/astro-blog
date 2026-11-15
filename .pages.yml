@@ -24,11 +24,25 @@ content:
       - { name: slug, label: Слаг, type: string }
       - { name: featured, label: Избранное, type: boolean }
       - { name: draft, label: Черновик, type: boolean }
+      - { name: rubrics, label: Рубрики, type: reference, options: { collection: rubrics, multiple: true, search: title, value: "{fields.slug}", label: "{fields.title}" } }
       - { name: tags, label: Теги, type: string, list: true }
       - { name: featuredImage, label: Главное изображение, type: image, options: { media: images } }
       - { name: featuredImageAlt, label: Альтернативный текст главного изображения, type: string }
       - { name: description, label: Описание, type: string }
       - { name: body, label: Текст, type: rich-text }
+  - name: rubrics
+    label: Рубрики
+    type: collection
+    path: src/content/rubrics
+    filename: "{fields.slug}.md"
+    view:
+      fields: [ title, slug, showInMenu, menuOrder ]
+    fields:
+      - { name: title, label: Название, type: string, required: true }
+      - { name: slug, label: "Слаг (URL: /rubrics/slug/). Не меняйте после создания: записи привязаны к рубрике по слагу", type: string, required: true, pattern: { regex: "^[a-z0-9]+(-[a-z0-9]+)*$", message: "Только строчные латинские буквы, цифры и дефисы" } }
+      - { name: description, label: "Описание (показывается на странице рубрики)", type: text }
+      - { name: showInMenu, label: Показывать в меню, type: boolean, default: true }
+      - { name: menuOrder, label: Порядок в меню (меньше значение — выше), type: number, default: 100 }
   - name: pages
     label: Страницы
     type: collection
@@ -89,3 +103,12 @@ content:
               values: [Github, Facebook, Instagram, LinkedIn, Mail, Twitter, Twitch, YouTube, WhatsApp, Snapchat, Pinterest, TikTok, CodePen, Discord, GitLab, Reddit, Skype, Steam, Telegram, Mastodon]
           - { name: href, label: "URL (для Mail используйте mailto:you@example.com)", type: string, required: true }
           - { name: active, label: Показывать на сайте, type: boolean, default: true }
+      - name: analytics
+        label: Метрика и счётчики (работают только на опубликованном сайте)
+        type: object
+        fields:
+          - { name: yandexMetrikaId, label: "Номер счётчика Яндекс Метрики (только цифры, например 12345678)", type: string, pattern: { regex: "^\\d*$", message: "Только цифры" } }
+          - { name: yandexWebvisor, label: Включить Вебвизор (запись действий посетителей), type: boolean, default: false }
+          - { name: googleAnalyticsId, label: "Идентификатор Google Analytics 4 (G-XXXXXXX)", type: string, pattern: { regex: "^(G-[A-Z0-9]+)?$", message: "Формат: G-XXXXXXX" } }
+          - { name: headCode, label: "Произвольный код в <head> (другие счётчики, пиксели, верификация; виджеты не поддерживаются)", type: code, options: { format: html } }
+          - { name: bodyCode, label: "Произвольный код в конец <body> (noscript-части счётчиков; виджеты вроде чатов и баннеров исчезнут при переходе между страницами)", type: code, options: { format: html } }

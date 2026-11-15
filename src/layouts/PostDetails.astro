@@ -9,6 +9,7 @@ import { slugifyStr } from "@utils/slugify";
 import ShareLinks from "@components/ShareLinks.astro";
 import { SITE } from "@config";
 import { Image } from "astro:assets";
+import { getPostRubrics, getRubrics } from "@utils/rubrics";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -30,6 +31,8 @@ const {
 } = post.data;
 
 const { Content } = await render(post);
+
+const rubrics = getPostRubrics(post, await getRubrics());
 
 const ogImageUrl = typeof ogImage === "string" ? ogImage : ogImage?.src;
 const ogUrl = new URL(
@@ -77,6 +80,16 @@ const layoutProps = {
       size="lg"
       className="my-2"
     />
+    {rubrics.length > 0 && (
+      <p class="post-rubrics">
+        <span>{rubrics.length === 1 ? "Рубрика:" : "Рубрики:"}</span>
+        {rubrics.map(rubric => (
+          <span class="rubric">
+            <a href={`/rubrics/${rubric.id}/`}>{rubric.data.title}</a>
+          </span>
+        ))}
+      </p>
+    )}
     {featuredImage && (
       <Image
         src={featuredImage}
@@ -132,6 +145,19 @@ const layoutProps = {
     }
     .post-title {
       @apply text-2xl font-semibold text-skin-accent;
+    }
+    /* Flex drops the whitespace between items, so commas sit tight */
+    .post-rubrics {
+      @apply my-2 flex flex-wrap gap-x-2 text-sm italic opacity-80;
+    }
+    .post-rubrics .rubric {
+      @apply flex;
+    }
+    .post-rubrics .rubric:not(:last-child)::after {
+      content: ",";
+    }
+    .post-rubrics a {
+      @apply underline decoration-dashed underline-offset-4 hover:text-skin-accent;
     }
   }
 </style>
