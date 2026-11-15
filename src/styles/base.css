@@ -158,14 +158,23 @@
   .archive-embed-audio {
     height: 2.5rem;
   }
-  .archive-embed-playlist {
+  .archive-embed-audio.archive-embed-playlist {
     height: 20rem;
   }
-  /* The video ratio comes inline from the item's own dimensions. */
-  .archive-embed-video,
   .archive-embed-other {
     height: auto;
     aspect-ratio: 4 / 3;
+  }
+  /*
+    --archive-ratio comes inline from the item's own dimensions. The width
+    shrinks for portrait video so that the frame never outgrows the screen.
+  */
+  .archive-embed-video {
+    --max-height: 80svh;
+    width: min(100%, calc(var(--max-height) * (var(--archive-ratio, 4 / 3))));
+    height: auto;
+    margin-inline: auto;
+    aspect-ratio: var(--archive-ratio, 4 / 3);
   }
   .archive-embed-book {
     height: min(40rem, 80svh);
