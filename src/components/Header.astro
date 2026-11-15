@@ -3,6 +3,7 @@ import { LOGO_IMAGE, SITE } from "@config";
 import Hr from "./Hr.astro";
 import LinkButton from "./LinkButton.astro";
 import { getCollection } from "astro:content";
+import byMenuOrder from "@utils/byMenuOrder";
 import { getRubrics } from "@utils/rubrics";
 
 export interface Props {
@@ -14,11 +15,7 @@ const { activeNav } = Astro.props;
 
 const menuPages = (
   await getCollection("pages", ({ data }) => !data.draft && data.showInMenu)
-).sort(
-  (a, b) =>
-    a.data.menuOrder - b.data.menuOrder ||
-    a.data.title.localeCompare(b.data.title)
-);
+).sort(byMenuOrder);
 
 const menuRubrics = (await getRubrics()).filter(
   rubric => rubric.data.showInMenu
@@ -273,8 +270,9 @@ const currentPath = Astro.url.pathname;
     .rubrics-menu.open .rubrics-dropdown {
       @apply block;
     }
+    /* No-JS fallback only: the script adds `.js` and drives hover itself */
     @media (hover: hover) and (min-width: 640px) {
-      .rubrics-menu:hover .rubrics-dropdown {
+      .rubrics-menu:not(.js):hover .rubrics-dropdown {
         @apply block;
       }
     }
@@ -339,18 +337,32 @@ const currentPath = Astro.url.pathname;
       ?.setAttribute("aria-expanded", String(open));
   };
 
+  // From `sm` up the list is a dropdown; below it is an accordion
+  const isDropdown = () => window.matchMedia("(min-width: 640px)").matches;
+  let hoverOpenedAt = 0;
+
   function initRubricsMenu() {
     const menu = document.querySelector<HTMLElement>(".rubrics-menu");
     const toggle = menu?.querySelector(".rubrics-toggle");
     if (!menu || !toggle) return;
 
-    toggle.addEventListener("click", () =>
-      setRubricsOpen(!menu.classList.contains("open"))
-    );
-    // Pointer left a dropdown that was also opened by click
-    menu.addEventListener("mouseleave", () => {
-      if (window.matchMedia("(hover: hover) and (min-width: 640px)").matches)
-        setRubricsOpen(false);
+    // Hover goes through `.open` too, so `aria-expanded` and Escape stay in sync
+    menu.classList.add("js");
+
+    toggle.addEventListener("click", () => {
+      const open = menu.classList.contains("open");
+      // A click right after hover opened the dropdown is meant to open it
+      if (open && performance.now() - hoverOpenedAt < 400) return;
+      setRubricsOpen(!open);
+    });
+    menu.addEventListener("pointerenter", event => {
+      if (event.pointerType !== "mouse" || !isDropdown()) return;
+      if (menu.classList.contains("open")) return;
+      hoverOpenedAt = performance.now();
+      setRubricsOpen(true);
+    });
+    menu.addEventListener("pointerleave", event => {
+      if (event.pointerType === "mouse" && isDropdown()) setRubricsOpen(false);
     });
     // Keyboard focus moved past the last item
     menu.addEventListener("focusout", event => {
@@ -374,6 +386,8 @@ const currentPath = Astro.url.pathname;
     if (!(event.target as Element).closest?.(".rubrics-menu"))
       setRubricsOpen(false);
   });
+  // Focus left the page (another window, browser chrome, an iframe)
+  window.addEventListener("blur", () => setRubricsOpen(false));
   document.addEventListener("keydown", event => {
     const menu = document.querySelector(".rubrics-menu");
     if (event.key !== "Escape" || !menu?.classList.contains("open")) return;

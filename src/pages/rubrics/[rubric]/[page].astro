@@ -1,22 +1,17 @@
 ---
-import { getCollection } from "astro:content";
 import RubricPosts from "@layouts/RubricPosts.astro";
-import getPageNumbers from "@utils/getPageNumbers";
 import getPagination from "@utils/getPagination";
-import { getPostsByRubric, getRubrics } from "@utils/rubrics";
+import { getRubricPages } from "@utils/rubrics";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
-  const rubrics = await getRubrics();
-
-  return rubrics.flatMap(rubric => {
-    const rubricPosts = getPostsByRubric(posts, rubric.id);
-
-    return getPageNumbers(rubricPosts.length).map(page => ({
-      params: { rubric: rubric.id, page: String(page) },
-      props: { rubric, rubricPosts },
-    }));
-  });
+  return (await getRubricPages()).flatMap(
+    ({ rubric, rubricPosts, pageNumbers }) =>
+      // Page 1 is served by ./index.astro
+      pageNumbers.slice(1).map(page => ({
+        params: { rubric: rubric.id, page: String(page) },
+        props: { rubric, rubricPosts },
+      }))
+  );
 }
 
 const { page } = Astro.params;

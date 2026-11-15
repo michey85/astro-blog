@@ -4,12 +4,22 @@ import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Layout from "@layouts/Layout.astro";
 import Main from "@layouts/Main.astro";
-import { getPostsByRubric, getRubrics } from "@utils/rubrics";
+import {
+  getPostsByRubric,
+  getRubrics,
+  warnUnknownRubrics,
+} from "@utils/rubrics";
 import { SITE } from "@config";
 
 const posts = await getCollection("blog");
 
-const rubrics = (await getRubrics()).map(rubric => ({
+const allRubrics = await getRubrics();
+
+// This page is built once and already has both collections loaded, so the
+// check for rubric slugs that match nothing runs here.
+warnUnknownRubrics(posts, allRubrics);
+
+const rubrics = allRubrics.map(rubric => ({
   rubric,
   count: getPostsByRubric(posts, rubric.id).length,
 }));
