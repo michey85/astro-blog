@@ -1,158 +1,186 @@
-# AstroPaper 📄
+# Блог на Astro с управлением через Pages CMS
 
-![AstroPaper](public/astropaper-og.jpg)
-![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![GitHub](https://img.shields.io/github/license/satnaing/astro-paper?color=%232F3741&style=for-the-badge)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white&style=for-the-badge)](https://conventionalcommits.org)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=for-the-badge)](http://commitizen.github.io/cz-cli/)
+Статический блог на [Astro](https://astro.build/) (основа — тема [AstroPaper](https://github.com/satnaing/astro-paper)), весь контент и настройки которого редактируются в браузере через [Pages CMS](https://pagescms.org/) — без правки кода.
 
-AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro blog theme. This theme is designed and crafted based on [my personal blog](https://satnaing.dev/blog).
+Pages CMS не хранит данные у себя: каждое сохранение — это коммит в этот репозиторий. Хостинг видит коммит, пересобирает сайт, и через пару минут изменения опубликованы.
 
-This theme follows best practices and provides accessibility out of the box. Light and dark mode are supported by default. Moreover, additional color schemes can also be configured.
+```text
+Pages CMS  →  коммит в GitHub  →  сборка на хостинге  →  обновлённый сайт
+```
 
-This theme is self-documented \_ which means articles/posts in this theme can also be considered as documentations. Read [the blog posts](https://astro-paper.pages.dev/posts/) or check [the README Documentation Section](#-documentation) for more info.
+Что и как показывается в админке, описано в одном файле — [.pages.yml](.pages.yml). Интерфейс админки и сайта — на русском.
 
-## 🔥 Features
+## Что редактируется в Pages CMS
 
-- [x] type-safe markdown
-- [x] super fast performance
-- [x] accessible (Keyboard/VoiceOver)
-- [x] responsive (mobile ~ desktops)
-- [x] SEO-friendly
-- [x] light & dark mode
-- [x] fuzzy search
-- [x] draft posts & pagination
-- [x] sitemap & rss feed
-- [x] followed best practices
-- [x] highly customizable
-- [x] dynamic OG image generation for blog posts [#15](https://github.com/satnaing/astro-paper/pull/15) ([Blog Post](https://astro-paper.pages.dev/posts/dynamic-og-image-generation-in-astropaper-blog-posts/))
+| Раздел в админке                       | Что это                                    | Где лежит в репозитории   |
+| :------------------------------------- | :----------------------------------------- | :------------------------ |
+| Записи                                 | Посты блога                                | `src/content/blog/*.md`   |
+| Страницы                               | Отдельные страницы (`/about/` и т. п.)     | `src/content/pages/*.md`  |
+| Главная страница                       | Заголовок и вступительный текст            | `src/data/home.md`        |
+| Главная: текст после избранных записей | Необязательный блок на главной             | `src/data/home-middle.md` |
+| Главная: текст после всех записей      | Необязательный блок на главной             | `src/data/home-bottom.md` |
+| Настройки сайта                        | Название, адрес, соцсети, счётчики и т. д. | `src/data/settings.json`  |
+| Медиа: Изображения записей             | Главные картинки постов                    | `src/assets/images/`      |
+| Медиа: Публичные файлы                 | Фавикон, картинка для соцсетей, прочее     | `public/`                 |
 
-_Note: I've tested screen-reader accessibility of AstroPaper using **VoiceOver** on Mac and **TalkBack** on Android. I couldn't test all other screen-readers out there. However, accessibility enhancements in AstroPaper should be working fine on others as well._
+### Записи
 
-## ✅ Lighthouse Score
+Каждая запись — Markdown-файл. Адрес записи: `/posts/<слаг>/`.
 
-<p align="center">
-  <a href="https://pagespeed.web.dev/report?url=https%3A%2F%2Fastro-paper.pages.dev%2F&form_factor=desktop">
-    <img width="710" alt="AstroPaper Lighthouse Score" src="AstroPaper-lighthouse-score.svg">
-  <a>
-</p>
+| Поле                 | Что делает                                                                                                                   |
+| :------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| Заголовок            | Обязателен                                                                                                                   |
+| Дата публикации      | Обязательна для сборки. Запись с датой в будущем не попадает в списки, поиск и RSS, пока дата не наступит                    |
+| Дата изменения       | Если позже даты публикации — на сайте показывается «Обновлено», и запись сортируется по этой дате                            |
+| Автор                | Пусто — подставится автор из настроек сайта                                                                                  |
+| Слаг                 | Адрес записи. Пусто — берётся имя файла                                                                                      |
+| Избранное            | Запись попадает в блок «Избранное» на главной                                                                                |
+| Черновик             | Запись не публикуется вообще                                                                                                 |
+| Теги                 | Список. По каждому тегу строится страница `/tags/<тег>/`; русские теги в адресе транслитерируются                            |
+| Главное изображение  | Загружается в «Изображения записей», автоматически оптимизируется: миниатюра в карточке и адаптивная картинка в самой записи |
+| Альтернативный текст | Обязателен, если задано главное изображение (иначе сборка упадёт)                                                            |
+| OG-изображение       | Путь или URL картинки для соцсетей. Пусто — картинка 1200×630 генерируется автоматически из заголовка                        |
+| Описание             | Показывается в карточках, поиске, RSS и meta-тегах. Пусто — в meta-теги пойдёт описание сайта                                |
+| Текст                | Визуальный редактор                                                                                                          |
 
-## 🚀 Project Structure
+Запись с будущей датой появится в списках только после очередной сборки, прошедшей позже этой даты (сайт статический, сам он не «проснётся»). Допуск — 15 минут.
 
-Inside of AstroPaper, you'll see the following folders and files:
+`canonicalURL` поддерживается, но в форме админки его нет — задаётся вручную во frontmatter файла.
 
-```bash
+### Страницы
+
+Произвольные страницы вроде «О нас» или «Контакты». Адрес: `/<слаг>/`.
+
+- **Слаг** — строчные латинские буквы, цифры и дефисы; он же становится именем файла. Слаги `posts`, `tags`, `search`, `404` заняты самим сайтом — страница с таким слагом будет пропущена.
+- **Показывать в меню** — добавляет ссылку в шапку сайта после «Посты» и «Теги».
+- **Подпись в меню** — если нужна короче заголовка.
+- **Порядок в меню** — меньше значение — левее (по умолчанию 100, при равенстве — по алфавиту).
+- **Черновик** — страница не публикуется и пропадает из меню.
+- **Описание** — для meta-тегов; пусто — описание сайта.
+
+Картинки, вставленные в текст страницы (и в тексты главной), загружаются в `public/assets/`.
+
+### Главная страница
+
+Главная собирается из трёх редактируемых кусков и двух автоматических списков:
+
+1. **Заголовок и вступительный текст** (пустой заголовок — подставится название сайта), ниже — ссылки на соцсети.
+2. Блок **«Избранное»** — все записи с галочкой «Избранное».
+3. **Текст после избранных записей** — необязательный.
+4. Блок **«Последние посты»** — 4 самые свежие записи не из избранного и кнопка «Все посты».
+5. **Текст после всех записей** — необязательный.
+
+Необязательные блоки скрываются целиком, если оставить их пустыми. В тексте можно использовать HTML — например, встроить календарь или видео через `<iframe>`.
+
+### Настройки сайта
+
+**Основное**
+
+- **Название сайта** — шапка, вкладка браузера, RSS.
+- **Адрес сайта** — только домен с протоколом (`https://example.com`). Используется в canonical, og:image, sitemap и RSS — **его нужно поменять при переезде на другой домен**.
+- **Описание сайта** — meta description, превью в соцсетях, RSS.
+- **Автор сайта** — meta author и автор записей по умолчанию.
+- **Картинка для соцсетей** — og:image по умолчанию. Пусто — генерируется автоматически из названия и описания.
+- **Иконка сайта** — фавикон: SVG, PNG, ICO или WebP.
+
+**Ссылки на соцсети** — список из 20 сетей (Telegram, YouTube, GitHub, Mail и др.). Показываются на главной и в подвале в том порядке, в каком стоят в списке; любую можно временно скрыть галочкой «Показывать на сайте».
+
+**Метрика и счётчики**
+
+- **Яндекс Метрика** — достаточно номера счётчика; Вебвизор включается отдельной галочкой.
+- **Google Analytics 4** — идентификатор вида `G-XXXXXXX`.
+- **Произвольный код в `<head>`** и **в конец `<body>`** — для других счётчиков, пикселей, верификации.
+
+Счётчики работают только на боевом сайте: в локальной разработке и на preview-деплоях (Vercel, Cloudflare Pages, Netlify) они отключены, чтобы не портить статистику. Переходы между страницами учитываются корректно, хотя сайт переключает их без полной перезагрузки.
+
+Ограничение: произвольный код рассчитан на счётчики и пиксели. Виджеты, которые добавляют на страницу свои элементы (чаты, баннеры), пропадут после первого перехода между страницами.
+
+### Защита от ошибок
+
+Всё, что приходит из админки, проверяется при сборке ([src/config.ts](src/config.ts), [src/content.config.ts](src/content.config.ts)). Некорректное значение — например, адрес сайта с путём или главное изображение без альтернативного текста — останавливает сборку с понятным сообщением, а на сайте остаётся предыдущая рабочая версия. Очищенные поля корректно считаются «не заданными».
+
+## Что сайт делает сам
+
+- Список записей с пагинацией (по 10 на страницу), страницы тегов.
+- Поиск по заголовкам и описаниям записей (`/search/`), устойчивый к опечаткам.
+- RSS-лента (`/rss.xml`), `sitemap-index.xml`, `robots.txt`.
+- Meta-теги Open Graph и Twitter Card; автогенерация OG-картинок для сайта и для каждой записи.
+- Оптимизация изображений и итоговой сборки.
+- Светлая и тёмная тема с переключателем.
+- Плавные переходы между страницами.
+- В записи: индикатор прогресса чтения, якорные ссылки у заголовков, кнопка копирования кода, подсветка синтаксиса, кнопки «Поделиться» (WhatsApp, Facebook, Twitter, Telegram, Pinterest, почта).
+- Оглавление записи: достаточно добавить заголовок `Table of contents` — список разделов подставится автоматически.
+- Адаптивная вёрстка, навигация с клавиатуры, поддержка скринридеров.
+
+## Что меняется только в коде
+
+| Что                                               | Где                                           |
+| :------------------------------------------------ | :-------------------------------------------- |
+| Записей на страницу, допуск отложенной публикации | `SITE` в [src/config.ts](src/config.ts)       |
+| Язык сайта (`ru`)                                 | `LOCALE` в [src/config.ts](src/config.ts)     |
+| Логотип-картинка вместо названия в шапке          | `LOGO_IMAGE` в [src/config.ts](src/config.ts) |
+| Цвета светлой и тёмной темы                       | [src/styles/base.css](src/styles/base.css)    |
+| Тексты интерфейса («Посты», «Теги», «Поиск»…)     | компоненты в `src/`                           |
+| Состав полей и разделов админки                   | [.pages.yml](.pages.yml)                      |
+
+Верификация Google Search Console задаётся переменной окружения `PUBLIC_GOOGLE_SITE_VERIFICATION` (или кодом в `<head>` через настройки сайта).
+
+При добавлении поля в `.pages.yml` не забудьте добавить его и в схему в [src/content.config.ts](src/content.config.ts) или [src/config.ts](src/config.ts).
+
+## Подключение Pages CMS
+
+1. Откройте [app.pagescms.org](https://app.pagescms.org/) и войдите через GitHub.
+2. Установите GitHub-приложение Pages CMS и дайте ему доступ к этому репозиторию.
+3. Выберите репозиторий и ветку `main` — разделы появятся автоматически из `.pages.yml`.
+
+Чтобы дать доступ редактору без аккаунта GitHub, пригласите его по email в настройках проекта в Pages CMS.
+
+Хостинг должен пересобирать сайт при каждом коммите в `main`: команда сборки — `npm run build`, каталог с результатом — `dist`.
+
+## Локальный запуск
+
+Нужен Node.js 22.23.4 или новее.
+
+| Команда                | Действие                                            |
+| :--------------------- | :-------------------------------------------------- |
+| `npm install`          | Установить зависимости                              |
+| `npm run dev`          | Запустить dev-сервер на `localhost:4321`            |
+| `npm run build`        | Собрать сайт в `./dist/` и оптимизировать результат |
+| `npm run preview`      | Посмотреть собранный сайт локально                  |
+| `npm run sync`         | Сгенерировать типы для контента                     |
+| `npm run lint`         | Проверить код ESLint                                |
+| `npm run format`       | Отформатировать код Prettier                        |
+| `npm run format:check` | Проверить форматирование                            |
+| `docker compose up -d` | Запустить dev-сервер в Docker                       |
+
+В режиме разработки видны и записи с будущей датой; черновики скрыты всегда.
+
+## Структура проекта
+
+```text
 /
-├── public/
-│   ├── assets/
-│   │   └── logo.svg
-│   │   └── logo.png
-│   └── favicon.svg
-│   └── astropaper-og.jpg
-│   └── robots.txt
-│   └── toggle-theme.js
+├── .pages.yml              # конфигурация Pages CMS
+├── public/                 # файлы, отдаваемые как есть (фавикон, og-картинка, assets/)
 ├── src/
-│   ├── assets/
-│   │   └── socialIcons.ts
-│   ├── components/
+│   ├── assets/images/      # изображения записей (оптимизируются при сборке)
 │   ├── content/
-│   │   |  blog/
-│   │   |    └── some-blog-posts.md
-│   │   └── config.ts
+│   │   ├── blog/           # записи
+│   │   └── pages/          # страницы
+│   ├── data/               # главная страница и настройки сайта
+│   ├── components/
 │   ├── layouts/
-│   └── pages/
-│   └── styles/
-│   └── utils/
-│   └── config.ts
-│   └── types.ts
-└── package.json
+│   ├── pages/              # маршруты
+│   ├── styles/
+│   ├── utils/
+│   ├── config.ts           # чтение и проверка настроек сайта
+│   └── content.config.ts   # схемы записей и страниц
+└── astro.config.ts
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Технологии
 
-Any static assets, like images, can be placed in the `public/` directory.
+[Astro](https://astro.build/) · [TypeScript](https://www.typescriptlang.org/) · [React](https://react.dev/) (поиск) · [Tailwind CSS](https://tailwindcss.com/) · [Fuse.js](https://fusejs.io/) · [Satori](https://github.com/vercel/satori) (OG-картинки) · [Jampack](https://jampack.divriots.com/) · [Pages CMS](https://pagescms.org/)
 
-All blog posts are stored in `src/content/blog` directory.
+## Лицензия
 
-## 📖 Documentation
-
-Documentation can be read in two formats\_ _markdown_ & _blog post_.
-
-- Configuration - [markdown](src/content/blog/how-to-configure-astropaper-theme.md) | [blog post](https://astro-paper.pages.dev/posts/how-to-configure-astropaper-theme/)
-- Add Posts - [markdown](src/content/blog/adding-new-post.md) | [blog post](https://astro-paper.pages.dev/posts/adding-new-posts-in-astropaper-theme/)
-- Customize Color Schemes - [markdown](src/content/blog/customizing-astropaper-theme-color-schemes.md) | [blog post](https://astro-paper.pages.dev/posts/customizing-astropaper-theme-color-schemes/)
-- Predefined Color Schemes - [markdown](src/content/blog/predefined-color-schemes.md) | [blog post](https://astro-paper.pages.dev/posts/predefined-color-schemes/)
-
-> For AstroPaper v1, check out [this branch](https://github.com/satnaing/astro-paper/tree/astro-paper-v1) and this [live URL](https://astro-paper-v1.astro-paper.pages.dev/)
-
-## 💻 Tech Stack
-
-**Main Framework** - [Astro](https://astro.build/)  
-**Type Checking** - [TypeScript](https://www.typescriptlang.org/)  
-**Component Framework** - [ReactJS](https://reactjs.org/)  
-**Styling** - [TailwindCSS](https://tailwindcss.com/)  
-**UI/UX** - [Figma](https://figma.com)  
-**Fuzzy Search** - [FuseJS](https://fusejs.io/)  
-**Icons** - [Boxicons](https://boxicons.com/) | [Tablers](https://tabler-icons.io/)  
-**Code Formatting** - [Prettier](https://prettier.io/)  
-**Deployment** - [Cloudflare Pages](https://pages.cloudflare.com/)  
-**Illustration in About Page** - [https://freesvgillustration.com](https://freesvgillustration.com/)  
-**Linting** - [ESLint](https://eslint.org)
-
-## 👨🏻‍💻 Running Locally
-
-The easiest way to run this project locally is to run the following command in your desired directory.
-
-```bash
-# npm 6.x
-npm create astro@latest --template satnaing/astro-paper
-
-# npm 7+, extra double-dash is needed:
-npm create astro@latest -- --template satnaing/astro-paper
-
-# yarn
-yarn create astro --template satnaing/astro-paper
-```
-
-## Google Site Verification (optional)
-
-You can easily add your [Google Site Verification HTML tag](https://support.google.com/webmasters/answer/9008080#meta_tag_verification&zippy=%2Chtml-tag) in AstroPaper using environment variable. This step is optional. If you don't add the following env variable, the google-site-verification tag won't appear in the html `<head>` section.
-
-```bash
-# in your environment variable file (.env)
-PUBLIC_GOOGLE_SITE_VERIFICATION=your-google-site-verification-value
-```
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-> **_Note!_** For `Docker` commands we must have it [installed](https://docs.docker.com/engine/install/) in your machine.
-
-| Command                              | Action                                                                                                                           |
-| :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| `npm install`                        | Installs dependencies                                                                                                            |
-| `npm run dev`                        | Starts local dev server at `localhost:4321`                                                                                      |
-| `npm run build`                      | Build your production site to `./dist/`                                                                                          |
-| `npm run preview`                    | Preview your build locally, before deploying                                                                                     |
-| `npm run format:check`               | Check code format with Prettier                                                                                                  |
-| `npm run format`                     | Format codes with Prettier                                                                                                       |
-| `npm run sync`                       | Generates TypeScript types for all Astro modules. [Learn more](https://docs.astro.build/en/reference/cli-reference/#astro-sync). |
-| `npm run cz`                         | Commit code changes with commitizen                                                                                              |
-| `npm run lint`                       | Lint with ESLint                                                                                                                 |
-| `docker compose up -d`               | Run AstroPaper on docker, You can access with the same hostname and port informed on `dev` command.                              |
-| `docker compose run app npm install` | You can run any command above into the docker container.                                                                         |
-
-> **_Warning!_** Windows PowerShell users may need to install the [concurrently package](https://www.npmjs.com/package/concurrently) if they want to [run diagnostics](https://docs.astro.build/en/reference/cli-reference/#astro-check) during development (`astro check --watch & astro dev`). For more info, see [this issue](https://github.com/satnaing/astro-paper/issues/113).
-
-## ✨ Feedback & Suggestions
-
-If you have any suggestions/feedback, you can contact me via [my email](mailto:contact@satnaing.dev). Alternatively, feel free to open an issue if you find bugs or want to request new features.
-
-## 📜 License
-
-Licensed under the MIT License, Copyright © 2023
-
----
-
-Made with 🤍 by [Sat Naing](https://satnaing.dev) 👨🏻‍💻 and [contributors](https://github.com/satnaing/astro-paper/graphs/contributors).
+MIT. Основано на теме [AstroPaper](https://github.com/satnaing/astro-paper) (автор — [Sat Naing](https://satnaing.dev)).
