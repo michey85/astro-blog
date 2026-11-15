@@ -16,8 +16,14 @@ const LABELS: Record<string, string> = {
   about: "Обо мне",
   search: "Поиск",
 };
-const label = (segment: string) =>
-  LABELS[segment] ?? decodeURIComponent(segment);
+const decode = (segment: string) => {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+};
+const label = (segment: string) => LABELS[segment] ?? decode(segment);
 
 // if breadcrumb is Home > Posts > 1 <etc>
 // replace Posts with Posts (page number)
@@ -38,16 +44,14 @@ breadcrumbList[0] === "tags" &&
 
 // if breadcrumb is Home > Rubrics > [rubric] > [page]
 // replace [rubric] > [page] with the rubric title (page number)
-let rubricCrumb = false;
+// The title is free-form CMS text, not a URL segment: it is rendered as is,
+// never decoded or looked up in LABELS.
+let rubricCrumb: string | undefined;
 if (breadcrumbList[0] === "rubrics" && breadcrumbList[1]) {
   const rubric = await getEntry("rubrics", breadcrumbList[1]);
   const page = Number(breadcrumbList[2]);
-  breadcrumbList.splice(
-    1,
-    2,
-    `${rubric?.data.title ?? breadcrumbList[1]}${page > 1 ? ` (стр. ${page})` : ""}`
-  );
-  rubricCrumb = true;
+  rubricCrumb = `${rubric?.data.title ?? decode(breadcrumbList[1])}${page > 1 ? ` (стр. ${page})` : ""}`;
+  breadcrumbList.splice(1, 2, rubricCrumb);
 }
 ---
 
@@ -65,7 +69,7 @@ if (breadcrumbList[0] === "rubrics" && breadcrumbList[1]) {
             aria-current="page"
           >
             {/* make the last part lowercase in Home > Tags > some-tag */}
-            {label(breadcrumb)}
+            {rubricCrumb ?? label(breadcrumb)}
           </span>
         </li>
       ) : (
