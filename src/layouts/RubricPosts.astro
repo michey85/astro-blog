@@ -1,0 +1,62 @@
+---
+import { type CollectionEntry } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+import Main from "@layouts/Main.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Card from "@components/Card";
+import getThumbnail from "@utils/getThumbnail";
+import Pagination from "@components/Pagination.astro";
+import type { Rubric } from "@utils/rubrics";
+import { SITE } from "@config";
+
+export interface Props {
+  currentPage: number;
+  totalPages: number;
+  paginatedPosts: CollectionEntry<"blog">[];
+  rubric: Rubric;
+}
+
+const { currentPage, totalPages, paginatedPosts, rubric } = Astro.props;
+const { title, description } = rubric.data;
+
+const thumbnails = new Map(
+  await Promise.all(
+    paginatedPosts.map(async p => [p.id, await getThumbnail(p.data)] as const)
+  )
+);
+---
+
+<Layout title={`Рубрика: ${title} | ${SITE.title}`} description={description}>
+  <Header activeNav="rubrics" />
+  <Main
+    pageTitle={[`Рубрика:`, title]}
+    titleTransition={`rubric-${rubric.id}`}
+    pageDesc={description ?? `Все записи рубрики «${title}».`}
+  >
+    {paginatedPosts.length === 0 ? (
+      <p>В этой рубрике пока нет записей.</p>
+    ) : (
+      <ul>
+        {paginatedPosts.map(({ data, id }) => (
+          <Card
+            href={`/posts/${id}/`}
+            frontmatter={data}
+            thumbnail={thumbnails.get(id)}
+          />
+        ))}
+      </ul>
+    )}
+  </Main>
+
+  <Pagination
+    {currentPage}
+    {totalPages}
+    prevUrl={`/rubrics/${rubric.id}${
+      currentPage - 1 !== 1 ? "/" + (currentPage - 1) : ""
+    }/`}
+    nextUrl={`/rubrics/${rubric.id}/${currentPage + 1}/`}
+  />
+
+  <Footer noMarginTop={totalPages > 1} />
+</Layout>

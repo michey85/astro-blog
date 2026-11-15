@@ -5,6 +5,7 @@ modDatetime: 2026-09-26T20:33:57.000Z
 title: "ЙОГА-СТАТЬЯ: Доверие к жизни — неотъемлемая часть йоги"
 featured: false
 draft: false
+rubrics: ["avtory-statey"]
 tags: ["Авторы статей", "Обо всем", "Открытый Йога Журнал"]
 featuredImage: "@assets/images/openyoga/yoga-article-trust-in-life-an-integral-part-of-yoga-2.jpg"
 featuredImageAlt: "ЙОГА-СТАТЬЯ: Доверие к жизни — неотъемлемая часть йоги"

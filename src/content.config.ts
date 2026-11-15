@@ -8,6 +8,11 @@ import { z } from "astro/zod";
 const blank = (v: unknown) =>
   (typeof v === "string" && v.trim() === "") || v === null ? undefined : v;
 
+// Tolerate a file path or file name stored instead of the bare slug
+// ("src/content/rubrics/yoga.md" → "yoga").
+const rubricSlug = (v: string) =>
+  v.trim().split("/").pop()!.replace(/\.md$/, "");
+
 const blog = defineCollection({
   loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/blog" }),
   schema: ({ image }) =>
@@ -21,6 +26,13 @@ const blog = defineCollection({
         featured: z.boolean().optional(),
         draft: z.boolean().optional(),
         tags: z.array(z.string()).default(["others"]),
+        // Rubric slugs, picked in Pages CMS from the "rubrics" collection.
+        // Kept as plain strings (not reference()) so that deleting a rubric
+        // still used by a post doesn't fail the build; see utils/rubrics.ts.
+        rubrics: z.preprocess(
+          blank,
+          z.array(z.string().transform(rubricSlug)).default([])
+        ),
         ogImage: z.preprocess(
           blank,
           image()
@@ -54,4 +66,16 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { blog, pages };
+// The `slug` frontmatter field (set in Pages CMS) becomes the entry id,
+// i.e. the URL: /rubrics/<slug>/.
+const rubrics = defineCollection({
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/rubrics" }),
+  schema: z.object({
+    title: z.string().trim().min(1),
+    description: z.preprocess(blank, z.string().optional()),
+    showInMenu: z.preprocess(blank, z.boolean().default(true)),
+    menuOrder: z.preprocess(blank, z.number().default(100)),
+  }),
+});
+
+export const collections = { blog, pages, rubrics };

@@ -5,6 +5,7 @@ modDatetime: 2026-10-10T19:55:14.000Z
 title: "ЙОГА-СТАТЬЯ: Узнать, понять и принять принципы Йоги"
 featured: false
 draft: false
+rubrics: ["avtory-statey"]
 tags: ["Авторы статей", "Обо всем", "Открытый Йога Журнал"]
 featuredImage: "@assets/images/openyoga/yoga-article-learn-understand-and-accept-the-principles-of-yoga-2.jpg"
 featuredImageAlt: "ЙОГА-СТАТЬЯ: Узнать, понять и принять принципы Йоги"

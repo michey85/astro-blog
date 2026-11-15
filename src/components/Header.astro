@@ -3,9 +3,10 @@ import { LOGO_IMAGE, SITE } from "@config";
 import Hr from "./Hr.astro";
 import LinkButton from "./LinkButton.astro";
 import { getCollection } from "astro:content";
+import { getRubrics } from "@utils/rubrics";
 
 export interface Props {
-  // "posts" | "tags" | "search", or the slug of a CMS page
+  // "posts" | "rubrics" | "tags" | "search", or the slug of a CMS page
   activeNav?: string;
 }
 
@@ -18,6 +19,11 @@ const menuPages = (
     a.data.menuOrder - b.data.menuOrder ||
     a.data.title.localeCompare(b.data.title)
 );
+
+const menuRubrics = (await getRubrics()).filter(
+  rubric => rubric.data.showInMenu
+);
+const currentPath = Astro.url.pathname;
 ---
 
 <header>
@@ -70,6 +76,60 @@ const menuPages = (
               Посты
             </a>
           </li>
+          {menuRubrics.length > 0 && (
+            <li class="rubrics-menu">
+              <button
+                type="button"
+                class={`rubrics-toggle focus-outline ${
+                  activeNav === "rubrics" ? "active" : ""
+                }`}
+                aria-expanded="false"
+                aria-controls="rubrics-list"
+              >
+                Рубрики
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              <div class="rubrics-dropdown">
+                <ul id="rubrics-list">
+                  {menuRubrics.map(rubric => (
+                    <li>
+                      <a
+                        href={`/rubrics/${rubric.id}/`}
+                        aria-current={
+                          currentPath.startsWith(`/rubrics/${rubric.id}/`)
+                            ? "page"
+                            : undefined
+                        }
+                      >
+                        {rubric.data.title}
+                      </a>
+                    </li>
+                  ))}
+                  <li class="all-rubrics">
+                    <a
+                      href="/rubrics/"
+                      aria-current={
+                        currentPath === "/rubrics/" ? "page" : undefined
+                      }
+                    >
+                      Все рубрики
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          )}
           <li>
             <a href="/tags/" class={activeNav === "tags" ? "active" : ""}>
               Теги
@@ -159,23 +219,24 @@ const menuPages = (
     nav {
       @apply flex w-full flex-col items-center sm:ml-2 sm:flex-row sm:justify-end sm:py-0;
     }
-    nav ul {
+    nav > ul {
       @apply mt-4 grid w-44 grid-cols-2 gap-x-2 gap-y-2 sm:ml-4 sm:mt-0 sm:w-auto sm:gap-x-5 sm:gap-y-0;
     }
-    nav ul li {
+    nav > ul > li {
       @apply col-span-2 flex items-center justify-center;
     }
-    nav ul li a {
+    nav > ul > li > a {
       @apply w-full px-4 py-3 text-center font-medium hover:text-skin-accent sm:my-0 sm:px-2 sm:py-1;
     }
-    nav ul li:nth-last-child(2) a {
+    nav > ul > li:nth-last-child(2) > a {
       @apply w-auto;
     }
-    nav ul li:nth-last-child(1),
-    nav ul li:nth-last-child(2) {
+    nav > ul > li:nth-last-child(1),
+    nav > ul > li:nth-last-child(2) {
       @apply col-span-1;
     }
-    nav a.active {
+    nav a.active,
+    .rubrics-toggle.active {
       @apply underline decoration-wavy decoration-2 underline-offset-4;
     }
     nav a.active svg {
@@ -190,6 +251,47 @@ const menuPages = (
     }
     #theme-btn {
       @apply p-3 sm:p-1;
+    }
+
+    /* Rubrics: inline accordion in the mobile menu, dropdown from `sm` up */
+    nav > ul > li.rubrics-menu {
+      @apply relative flex-col;
+    }
+    .rubrics-toggle {
+      @apply flex w-full items-center justify-center gap-1 px-4 py-3 font-medium hover:text-skin-accent sm:px-2 sm:py-1;
+    }
+    .rubrics-toggle svg {
+      @apply h-4 w-4 fill-none transition-transform hover:fill-none;
+    }
+    .rubrics-menu.open .rubrics-toggle svg {
+      @apply rotate-180;
+    }
+    .rubrics-dropdown {
+      /* sm: padding, not margin, so the pointer can travel from the button */
+      @apply hidden w-full sm:absolute sm:left-1/2 sm:top-full sm:z-20 sm:w-max sm:max-w-72 sm:-translate-x-1/2 sm:pt-2;
+    }
+    .rubrics-menu.open .rubrics-dropdown {
+      @apply block;
+    }
+    @media (hover: hover) and (min-width: 640px) {
+      .rubrics-menu:hover .rubrics-dropdown {
+        @apply block;
+      }
+    }
+    .rubrics-dropdown ul {
+      @apply sm:rounded-md sm:border sm:border-skin-line sm:bg-skin-fill sm:py-1 sm:shadow-md;
+    }
+    .rubrics-dropdown a {
+      @apply block px-4 py-2 text-center text-sm hover:text-skin-accent sm:text-left sm:text-base;
+    }
+    .rubrics-dropdown a[aria-current="page"] {
+      @apply text-skin-accent;
+    }
+    .rubrics-dropdown .all-rubrics {
+      @apply sm:mt-1 sm:border-t sm:border-skin-line sm:pt-1;
+    }
+    .rubrics-dropdown .all-rubrics a {
+      @apply italic;
     }
     #theme-btn svg {
       @apply scale-125 hover:rotate-12 sm:scale-100;
@@ -229,8 +331,54 @@ const menuPages = (
     });
   }
 
-  toggleNav();
+  const setRubricsOpen = (open: boolean) => {
+    const menu = document.querySelector(".rubrics-menu");
+    menu?.classList.toggle("open", open);
+    menu
+      ?.querySelector(".rubrics-toggle")
+      ?.setAttribute("aria-expanded", String(open));
+  };
+
+  function initRubricsMenu() {
+    const menu = document.querySelector<HTMLElement>(".rubrics-menu");
+    const toggle = menu?.querySelector(".rubrics-toggle");
+    if (!menu || !toggle) return;
+
+    toggle.addEventListener("click", () =>
+      setRubricsOpen(!menu.classList.contains("open"))
+    );
+    // Pointer left a dropdown that was also opened by click
+    menu.addEventListener("mouseleave", () => {
+      if (window.matchMedia("(hover: hover) and (min-width: 640px)").matches)
+        setRubricsOpen(false);
+    });
+    // Keyboard focus moved past the last item
+    menu.addEventListener("focusout", event => {
+      if (event.relatedTarget && !menu.contains(event.relatedTarget as Node))
+        setRubricsOpen(false);
+    });
+  }
+
+  function initHeader() {
+    toggleNav();
+    initRubricsMenu();
+  }
+
+  initHeader();
 
   // Runs on view transitions navigation
-  document.addEventListener("astro:after-swap", toggleNav);
+  document.addEventListener("astro:after-swap", initHeader);
+
+  // Document-level listeners outlive page swaps, so they are bound only once.
+  document.addEventListener("click", event => {
+    if (!(event.target as Element).closest?.(".rubrics-menu"))
+      setRubricsOpen(false);
+  });
+  document.addEventListener("keydown", event => {
+    const menu = document.querySelector(".rubrics-menu");
+    if (event.key !== "Escape" || !menu?.classList.contains("open")) return;
+    const hadFocus = menu.contains(document.activeElement);
+    setRubricsOpen(false);
+    if (hadFocus) menu.querySelector<HTMLElement>(".rubrics-toggle")?.focus();
+  });
 </script>

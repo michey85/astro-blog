@@ -5,6 +5,7 @@ modDatetime: 2026-09-03T20:17:09.000Z
 title: "ЙОГА-СТАТЬЯ: Незримый эффект от практики йоги"
 featured: false
 draft: false
+rubrics: ["avtory-statey"]
 tags: ["Авторы статей", "Обо всем", "Открытый Йога Журнал"]
 featuredImage: "@assets/images/openyoga/yoga-article-invisible-effect-of-yoga-practice-2.jpg"
 featuredImageAlt: "ЙОГА-СТАТЬЯ: Незримый эффект от практики йоги"

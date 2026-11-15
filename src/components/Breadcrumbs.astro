@@ -1,4 +1,6 @@
 ---
+import { getEntry } from "astro:content";
+
 // Remove current url path and remove trailing slash if exists
 const currentUrlPath = Astro.url.pathname.replace(/\/+$/, "");
 
@@ -10,6 +12,7 @@ const breadcrumbList = currentUrlPath.split("/").slice(1);
 const LABELS: Record<string, string> = {
   posts: "Посты",
   tags: "Теги",
+  rubrics: "Рубрики",
   about: "Обо мне",
   search: "Поиск",
 };
@@ -32,6 +35,20 @@ breadcrumbList[0] === "tags" &&
       Number(breadcrumbList[2]) === 1 ? "" : "(стр. " + breadcrumbList[2] + ")"
     }`
   );
+
+// if breadcrumb is Home > Rubrics > [rubric] > [page]
+// replace [rubric] > [page] with the rubric title (page number)
+let rubricCrumb = false;
+if (breadcrumbList[0] === "rubrics" && breadcrumbList[1]) {
+  const rubric = await getEntry("rubrics", breadcrumbList[1]);
+  const page = Number(breadcrumbList[2]);
+  breadcrumbList.splice(
+    1,
+    2,
+    `${rubric?.data.title ?? breadcrumbList[1]}${page > 1 ? ` (стр. ${page})` : ""}`
+  );
+  rubricCrumb = true;
+}
 ---
 
 <nav class="breadcrumb" aria-label="Навигационная цепочка">
@@ -44,7 +61,7 @@ breadcrumbList[0] === "tags" &&
       index + 1 === breadcrumbList.length ? (
         <li>
           <span
-            class={`${index > 0 ? "lowercase" : "capitalize"}`}
+            class={rubricCrumb ? "" : index > 0 ? "lowercase" : "capitalize"}
             aria-current="page"
           >
             {/* make the last part lowercase in Home > Tags > some-tag */}
