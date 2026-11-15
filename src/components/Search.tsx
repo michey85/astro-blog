@@ -5,7 +5,7 @@ import type { CollectionEntry } from "astro:content";
 
 export type SearchItem = {
   title: string;
-  description: string;
+  description?: string;
   data: CollectionEntry<"blog">["data"];
   slug: string;
 };
@@ -83,10 +83,7 @@ export default function SearchBar({ searchList }: Props) {
           <span className="sr-only">Поиск</span>
         </span>
         <input
-          className="block w-full rounded-sm border border-skin-base/40
-        bg-skin-fill py-3 pl-10
-        pr-3 placeholder:italic
-        focus:border-skin-accent focus:outline-hidden"
+          className="border-skin-base/40 bg-skin-fill focus:border-skin-accent block w-full rounded-sm border py-3 pr-3 pl-10 placeholder:italic focus:outline-hidden"
           placeholder="Искать..."
           type="text"
           name="search"

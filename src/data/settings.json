@@ -1,5 +1,10 @@
 {
   "title": "OpenYogaJournal",
+  "website": "https://astro-blog-three-brown.vercel.app/",
+  "description": "Журнал Открытой Йоги. Международного Открытого Йога Университета.",
+  "author": "OpenYoga",
+  "ogImage": "/joy-1.jpg",
+  "favicon": "/favicon.png",
   "socials": [
     {
       "name": "Telegram",
