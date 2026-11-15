@@ -5,6 +5,7 @@ modDatetime: 2026-10-22T08:53:27.000Z
 title: "ЙОГА-СТАТЬЯ: Востребуй волю – успех обеспечен!"
 featured: false
 draft: false
+rubrics: ["avtory-statey"]
 tags:
   [
     "Авторы статей",

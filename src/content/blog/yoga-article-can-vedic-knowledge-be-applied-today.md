@@ -5,6 +5,7 @@ modDatetime: 2026-09-19T17:06:45.000Z
 title: "ЙОГА-СТАТЬЯ: Можно ли применять знания Вед сегодня?"
 featured: false
 draft: false
+rubrics: ["avtory-statey"]
 tags: ["Авторы статей", "Обо всем", "Открытый Йога Журнал"]
 featuredImage: "@assets/images/openyoga/yoga-article-can-vedic-knowledge-be-applied-today.jpg"
 featuredImageAlt: "ЙОГА-СТАТЬЯ: Можно ли применять знания Вед сегодня?"

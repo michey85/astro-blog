@@ -1,0 +1,22 @@
+---
+import RubricPosts from "@layouts/RubricPosts.astro";
+import getPagination from "@utils/getPagination";
+import { getRubricPages } from "@utils/rubrics";
+
+export async function getStaticPaths() {
+  return (await getRubricPages()).map(({ rubric, rubricPosts }) => ({
+    params: { rubric: rubric.id },
+    props: { rubric, rubricPosts },
+  }));
+}
+
+const { rubric, rubricPosts } = Astro.props;
+
+const pagination = getPagination({
+  posts: rubricPosts,
+  page: 1,
+  isIndex: true,
+});
+---
+
+<RubricPosts {...pagination} {rubric} />

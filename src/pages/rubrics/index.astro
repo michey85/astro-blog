@@ -1,0 +1,55 @@
+---
+import { getCollection } from "astro:content";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Layout from "@layouts/Layout.astro";
+import Main from "@layouts/Main.astro";
+import {
+  getPostsByRubric,
+  getRubrics,
+  warnUnknownRubrics,
+} from "@utils/rubrics";
+import { SITE } from "@config";
+
+const posts = await getCollection("blog");
+
+const allRubrics = await getRubrics();
+
+// This page is built once and already has both collections loaded, so the
+// check for rubric slugs that match nothing runs here.
+warnUnknownRubrics(posts, allRubrics);
+
+const rubrics = allRubrics.map(rubric => ({
+  rubric,
+  count: getPostsByRubric(posts, rubric.id).length,
+}));
+---
+
+<Layout title={`Рубрики | ${SITE.title}`}>
+  <Header activeNav="rubrics" />
+  <Main pageTitle="Рубрики" pageDesc="Все рубрики журнала.">
+    {rubrics.length === 0 ? (
+      <p>Рубрик пока нет.</p>
+    ) : (
+      <ul>
+        {rubrics.map(({ rubric, count }) => (
+          <li class="my-6">
+            <a
+              href={`/rubrics/${rubric.id}/`}
+              class="text-lg font-medium text-skin-accent decoration-dashed underline-offset-4 hover:underline"
+            >
+              <span transition:name={`rubric-${rubric.id}`}>
+                {rubric.data.title}
+              </span>
+            </a>
+            <span class="text-sm opacity-80">({count})</span>
+            {rubric.data.description && (
+              <div class="mt-1">{rubric.data.description}</div>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </Main>
+  <Footer />
+</Layout>

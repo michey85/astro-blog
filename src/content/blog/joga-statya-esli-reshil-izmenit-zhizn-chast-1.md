@@ -5,6 +5,7 @@ modDatetime: 2026-10-29T13:33:01.000Z
 title: "ЙОГА-СТАТЬЯ: Если решил изменить жизнь! Часть 1"
 featured: false
 draft: false
+rubrics: ["vidy-yogi", "avtory-statey"]
 tags:
   [
     "Авторы статей",

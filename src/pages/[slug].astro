@@ -4,7 +4,7 @@ import PageLayout from "@layouts/PageLayout.astro";
 
 export async function getStaticPaths() {
   // Slugs already taken by built-in routes; CMS pages with these slugs are skipped.
-  const RESERVED_SLUGS = ["posts", "tags", "search", "404"];
+  const RESERVED_SLUGS = ["posts", "tags", "rubrics", "search", "404"];
   const pages = await getCollection(
     "pages",
     ({ data, id }) => !data.draft && !RESERVED_SLUGS.includes(id)
