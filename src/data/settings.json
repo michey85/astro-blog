@@ -26,5 +26,12 @@
       "href": "https://github.com/satnaing/astro-paper",
       "active": false
     }
-  ]
+  ],
+  "analytics": {
+    "yandexMetrikaId": "",
+    "yandexWebvisor": false,
+    "googleAnalyticsId": "",
+    "headCode": "",
+    "bodyCode": ""
+  }
 }

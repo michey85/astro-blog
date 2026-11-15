@@ -89,3 +89,12 @@ content:
               values: [Github, Facebook, Instagram, LinkedIn, Mail, Twitter, Twitch, YouTube, WhatsApp, Snapchat, Pinterest, TikTok, CodePen, Discord, GitLab, Reddit, Skype, Steam, Telegram, Mastodon]
           - { name: href, label: "URL (для Mail используйте mailto:you@example.com)", type: string, required: true }
           - { name: active, label: Показывать на сайте, type: boolean, default: true }
+      - name: analytics
+        label: Метрика и счётчики (работают только на опубликованном сайте)
+        type: object
+        fields:
+          - { name: yandexMetrikaId, label: "Номер счётчика Яндекс Метрики (только цифры, например 12345678)", type: string, pattern: { regex: "^\\d*$", message: "Только цифры" } }
+          - { name: yandexWebvisor, label: Включить Вебвизор (запись действий посетителей), type: boolean, default: false }
+          - { name: googleAnalyticsId, label: "Идентификатор Google Analytics 4 (G-XXXXXXX)", type: string, pattern: { regex: "^(G-[A-Z0-9]+)?$", message: "Формат: G-XXXXXXX" } }
+          - { name: headCode, label: "Произвольный код в <head> (другие счётчики, пиксели, верификация; виджеты не поддерживаются)", type: code, options: { format: html } }
+          - { name: bodyCode, label: "Произвольный код в конец <body> (noscript-части счётчиков; виджеты вроде чатов и баннеров исчезнут при переходе между страницами)", type: code, options: { format: html } }
