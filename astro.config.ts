@@ -6,6 +6,7 @@ import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import sitemap from "@astrojs/sitemap";
 import { SITE } from "./src/config";
+import rehypeArchiveEmbed from "./src/utils/rehypeArchiveEmbed";
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,6 +24,8 @@ export default defineConfig({
           },
         ],
       ],
+      // A bare archive.org link on its own line becomes an embedded player
+      rehypePlugins: [rehypeArchiveEmbed],
     }),
     shikiConfig: {
       theme: "one-dark-pro",
